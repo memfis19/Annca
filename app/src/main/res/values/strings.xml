@@ -1,0 +1,11 @@
+<resources>
+    <string name="app_name">Annca</string>
+
+
+    <string name="default_configuration">Default (Photo, medium quality)</string>
+    <string name="photo_configuration">Photo (Low quality)</string>
+    <string name="video_configuration">Video (High quality)</string>
+    <string name="video_limited_configuration">Video with limitation (By size, quality auto)</string>
+    <string name="universal_configuration">Universal (Able to switch video/photo)</string>
+
+</resources>
