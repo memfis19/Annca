@@ -394,8 +394,7 @@ public final class CameraHelper {
                 }
             } else return camcorderProfile;
         }
-
-        return CamcorderProfile.get(currentCameraId, AnncaConfiguration.MEDIA_QUALITY_LOWEST);
+        return CameraHelper.getCamcorderProfile(AnncaConfiguration.MEDIA_QUALITY_LOWEST, currentCameraId);
     }
 
     @TargetApi(Build.VERSION_CODES.LOLLIPOP)
