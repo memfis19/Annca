@@ -27,7 +27,7 @@ repositories {
     }
 }
 ```
-After just include dependency:
+After this step just include dependency:
 ```
 compile 'io.github.memfis19:annca:0.1.0'
 ```
