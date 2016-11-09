@@ -5,13 +5,13 @@
     android:background="#000000"
     android:keepScreenOn="true">
 
-    <io.memfis19.annca.internal.ui.view.AspectFrameLayout
+    <io.github.memfis19.annca.internal.ui.view.AspectFrameLayout
         android:id="@+id/previewContainer"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
         android:layout_centerInParent="true" />
 
-    <io.memfis19.annca.internal.ui.view.CameraControlPanel
+    <io.github.memfis19.annca.internal.ui.view.CameraControlPanel
         android:id="@+id/controlPanel"
         android:layout_width="match_parent"
         android:layout_height="match_parent" />

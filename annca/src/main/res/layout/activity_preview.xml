@@ -5,7 +5,7 @@
     android:layout_height="match_parent"
     android:background="#000000">
 
-    <io.memfis19.annca.internal.ui.view.AspectFrameLayout
+    <io.github.memfis19.annca.internal.ui.view.AspectFrameLayout
         android:id="@+id/previewAspectFrameLayout"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
@@ -16,7 +16,7 @@
             android:layout_width="wrap_content"
             android:layout_height="wrap_content" />
 
-    </io.memfis19.annca.internal.ui.view.AspectFrameLayout>
+    </io.github.memfis19.annca.internal.ui.view.AspectFrameLayout>
 
     <FrameLayout
         android:id="@+id/photo_preview_container"

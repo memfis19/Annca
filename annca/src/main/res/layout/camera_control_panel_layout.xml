@@ -11,7 +11,7 @@
         android:layout_alignParentTop="true"
         android:paddingTop="10dp">
 
-        <io.memfis19.annca.internal.ui.view.CameraSettingsView
+        <io.github.memfis19.annca.internal.ui.view.CameraSettingsView
             android:id="@+id/settings_view"
             android:layout_width="40dp"
             android:layout_height="40dp"
@@ -22,13 +22,13 @@
             android:scaleType="center"
             android:src="@drawable/ic_settings_white_24dp" />
 
-        <io.memfis19.annca.internal.ui.view.FlashSwitchView
+        <io.github.memfis19.annca.internal.ui.view.FlashSwitchView
             android:id="@+id/flash_switch_view"
             android:layout_width="40dp"
             android:layout_height="40dp"
             android:layout_centerInParent="true" />
 
-        <io.memfis19.annca.internal.ui.view.CameraSwitchView
+        <io.github.memfis19.annca.internal.ui.view.CameraSwitchView
             android:id="@+id/front_back_camera_switcher"
             android:layout_width="40dp"
             android:layout_height="40dp"
@@ -47,7 +47,7 @@
         android:layout_alignParentBottom="true"
         android:background="@android:color/transparent">
 
-        <io.memfis19.annca.internal.ui.view.RecordButton
+        <io.github.memfis19.annca.internal.ui.view.RecordButton
             android:id="@+id/record_button"
             android:layout_width="75dp"
             android:layout_height="75dp"
@@ -55,7 +55,7 @@
             android:layout_marginLeft="50dp"
             android:layout_marginRight="50dp" />
 
-        <io.memfis19.annca.internal.ui.view.MediaActionSwitchView
+        <io.github.memfis19.annca.internal.ui.view.MediaActionSwitchView
             android:id="@+id/photo_video_camera_switcher"
             android:layout_width="40dp"
             android:layout_height="40dp"
