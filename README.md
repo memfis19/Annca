@@ -1,7 +1,7 @@
 # Annca
 Android solution to simplify work with different camera apis. Include video and photo capturing.
 
-<img src="https://github.com/memfis19/Annca/blob/master/art/default_camera.png" width="800px" />
+<img src="https://github.com/memfis19/Annca/blob/master/art/default_camera.png" width="200px" />
 
 ## Example of using
 ```
