@@ -1,5 +1,5 @@
 # Annca
-Android solution to simplify work with different camera apis. Incude video and photo capturing.
+Android solution to simplify work with different camera apis. Include video and photo capturing.
 
 ## Example of using
 ```
