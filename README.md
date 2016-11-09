@@ -15,3 +15,17 @@ and thats it. You can use more extended settings i.e.
  new Annca(videoLimited.build()).launchCamera();
 ```
 in this example you request video capturing with file size limited to 5Mb and auto quality to record video which meet this requirements.
+
+## How to add to your project?
+For current moment repository not linked to jcenter (will be fixed in short time), so you need to add link to specific repo:
+```
+repositories {
+    maven {
+        url  'https://dl.bintray.com/m-e-m-f-i-s/io.github.memfis19/'
+    }
+}
+```
+After just include dependency:
+```
+compile 'io.github.memfis19:annca:0.1.0'
+```
