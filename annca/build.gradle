@@ -1,12 +1,28 @@
 apply plugin: 'com.android.library'
+apply plugin: 'com.jfrog.bintray'
+apply plugin: 'com.github.dcendents.android-maven'
+
+buildscript {
+    repositories {
+        jcenter()
+    }
+    dependencies {
+        classpath 'com.jfrog.bintray.gradle:gradle-bintray-plugin:1.7'
+        classpath 'com.github.dcendents:android-maven-gradle-plugin:1.4.1'
+    }
+}
+
+group = 'io.github.memfis19'
+version = '0.1.0'
 
 ext {
-    PUBLISH_GROUP_ID = 'io.memfis19'
+    PUBLISH_GROUP_ID = 'io.github.memfis19'
     PUBLISH_ARTIFACT_ID = 'annca'
     PUBLISH_VERSION = '0.1.0'
     PUBLISH_VERSION_CODE = 1
     SUPPORT_VERSION = '25.0.0'
     TARGET_SDK = 24
+    MIN_SDK = 10
     BUILD_TOOLS = "24.0.3"
 }
 
@@ -15,8 +31,8 @@ android {
     buildToolsVersion BUILD_TOOLS
 
     defaultConfig {
-        minSdkVersion 10
-        targetSdkVersion 24
+        minSdkVersion MIN_SDK
+        targetSdkVersion TARGET_SDK
         versionCode PUBLISH_VERSION_CODE
         versionName PUBLISH_VERSION
     }
@@ -30,14 +46,66 @@ android {
         abortOnError false
     }
 }
+
+install {
+    repositories.mavenInstaller {
+        pom.project {
+            name 'io.github.memfis19'
+            description 'Android solution to simplify work with different camera apis.'
+            url 'https://github.com/memfis19/Annca'
+            inceptionYear '2016'
+
+            packaging 'aar'
+            version PUBLISH_VERSION
+
+            scm {
+                connection 'https://github.com/memfis19/Annca.git'
+                url 'https://github.com/memfis19/Annca'
+
+            }
+            developers {
+                developer {
+                    name 'memfis19'
+                }
+            }
+        }
+    }
+}
+
+bintray {
+    Properties properties = new Properties()
+    properties.load(project.rootProject.file('local.properties').newDataInputStream())
+    user = properties.getProperty('bintray.user')
+    key = properties.getProperty('bintray.apikey')
+    configurations = ['archives']
+    pkg {
+        repo = 'io.github.memfis19'
+        name = 'annca'
+        userOrg = 'm-e-m-f-i-s'
+        desc = 'Android solution to simplify work with different camera apis.'
+        licenses = ['MIT']
+        labels = ['android', 'camera', 'photo', 'video']
+        websiteUrl = 'https://github.com/memfis19/Annca'
+        issueTrackerUrl = 'https://github.com/memfis19/Annca/issues'
+        vcsUrl = 'https://github.com/memfis19/Annca.git'
+        version {
+            name = PUBLISH_VERSION
+            vcsTag = PUBLISH_VERSION
+            desc = 'Initial publish.'
+            released = new Date()
+
+        }
+    }
+}
+
 dependencies {
     compile "com.android.support:support-v4:$SUPPORT_VERSION"
     compile "com.android.support:appcompat-v7:$SUPPORT_VERSION"
     androidTestCompile "com.android.support:support-annotations:$SUPPORT_VERSION"
     compile fileTree(include: ['*.jar'], dir: 'libs')
 }
-buildscript {
-    repositories {
-        jcenter()
-    }
+
+task wrapper(type: Wrapper) {
+    gradleVersion = '2.4'
 }
+

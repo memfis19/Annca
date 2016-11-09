@@ -1,14 +1,32 @@
 apply plugin: 'com.android.application'
 
+repositories {
+    maven {
+        url  'https://dl.bintray.com/m-e-m-f-i-s/io.github.memfis19/'
+    }
+}
+
+ext {
+    PUBLISH_GROUP_ID = 'io.github.memfis19'
+    PUBLISH_ARTIFACT_ID = 'annca'
+    PUBLISH_VERSION = '1.0.0'
+    PUBLISH_VERSION_CODE = 1
+    SUPPORT_VERSION = '25.0.0'
+    TARGET_SDK = 24
+    MIN_SDK = 10
+    BUILD_TOOLS = "24.0.3"
+}
+
 android {
-    compileSdkVersion 24
-    buildToolsVersion "24.0.3"
+    compileSdkVersion TARGET_SDK
+    buildToolsVersion BUILD_TOOLS
+
     defaultConfig {
-        applicationId "io.memfis19.annca"
-        minSdkVersion 10
-        targetSdkVersion 16
-        versionCode 1
-        versionName "1.0"
+        applicationId "io.github.memfis19.sample"
+        minSdkVersion MIN_SDK
+        targetSdkVersion TARGET_SDK
+        versionCode PUBLISH_VERSION_CODE
+        versionName PUBLISH_VERSION
         testInstrumentationRunner "android.support.test.runner.AndroidJUnitRunner"
     }
     buildTypes {
@@ -24,7 +42,7 @@ dependencies {
     androidTestCompile('com.android.support.test.espresso:espresso-core:2.2.2', {
         exclude group: 'com.android.support', module: 'support-annotations'
     })
-    compile 'com.android.support:appcompat-v7:24.2.1'
+    compile "com.android.support:appcompat-v7:$SUPPORT_VERSION"
+    compile 'io.github.memfis19:annca:0.1.0'
     testCompile 'junit:junit:4.12'
-    compile project(':annca')
 }
