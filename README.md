@@ -32,10 +32,10 @@ After this step just include dependency:
 compile 'io.github.memfis19:annca:0.1.0'
 ```
 ## Know issue
-Library has not release yet, so it contains some issues:
--Quality settings do not switch to accroding media action dynamically
--Some settings for AnncaConfiguration are still missing
--Lack of description
+Library has not release yet, so it contains some issues:<br/>
+-Quality settings do not switch to accroding media action dynamically</br>
+-Some settings for AnncaConfiguration are still missing<br/>
+-Lack of description<br/>
 
 Will be fixed shortly.
 
