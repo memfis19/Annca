@@ -1,6 +1,8 @@
 # Annca
 Android solution to simplify work with different camera apis. Include video and photo capturing.
 
+![alt-text-1](https://github.com/memfis19/Annca/blob/master/art/default_camera.png "title-1") ![alt-text-2](https://github.com/memfis19/Annca/blob/master/art/settings_for_video_limitation.png "title-2")
+
 <img src="https://github.com/memfis19/Annca/blob/master/art/default_camera.png" width="200" />
 
 <img src="https://github.com/memfis19/Annca/blob/master/art/settings_for_video_limitation.png" width="200" />
