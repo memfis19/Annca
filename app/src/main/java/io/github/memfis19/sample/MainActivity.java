@@ -39,6 +39,7 @@ public class MainActivity extends AppCompatActivity {
         if (Build.VERSION.SDK_INT > 15) {
             askForPermissions(new String[]{
                             android.Manifest.permission.CAMERA,
+                            android.Manifest.permission.RECORD_AUDIO,
                             android.Manifest.permission.WRITE_EXTERNAL_STORAGE,
                             android.Manifest.permission.READ_EXTERNAL_STORAGE},
                     REQUEST_CAMERA_PERMISSIONS);
