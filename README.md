@@ -1,5 +1,5 @@
 # Annca
-Android solution to simplify work with different camera apis. Include video and photo capturing.
+Android solution to simplify work with different camera apis. Include video and photo capturing features with possibily to select quiality for appropriate media action. In current solution used some approaches from [Grafika project](/https://github.com/google/grafika) and [Google camera samples](/https://github.com/googlesamples/android-Camera2Video)
 
 <img src="https://github.com/memfis19/Annca/blob/master/art/default_camera.png" width="200px" /> <img src="https://github.com/memfis19/Annca/blob/master/art/settings_for_video_limitation.png" width="200px" /><img src="https://github.com/memfis19/Annca/blob/master/art/video_camera.png" width="200" /><img src="https://github.com/memfis19/Annca/blob/master/art/video_low_quality.png" width="200" />
 
@@ -8,7 +8,7 @@ Android solution to simplify work with different camera apis. Include video and 
  AnncaConfiguration.Builder builder = new AnncaConfiguration.Builder(activity, CAPTURE_MEDIA);
  new Annca(builder.build()).launchCamera();
 ```
-and thats it. You can use more extended settings i.e.
+and thats it. You can use more extended settings i.e.:
 ```
  AnncaConfiguration.Builder videoLimited = new AnncaConfiguration.Builder(activity, CAPTURE_MEDIA);
  videoLimited.setMediaAction(AnncaConfiguration.MEDIA_ACTION_VIDEO);
@@ -16,7 +16,7 @@ and thats it. You can use more extended settings i.e.
  videoLimited.setVideoFileSize(5 * 1024 * 1024);
  new Annca(videoLimited.build()).launchCamera();
 ```
-in this example you request video capturing with file size limited to 5Mb and auto quality to record video which meet this requirements.
+in this example you request video capturing which is limited by file size for 5Mb and predefined minium video duration for 5 min. To achieve this result Annca will decrease video bit rate, so use it carefully to avoid unexpected result.
 
 ## How to add to your project?
 For current moment repository not linked to jcenter (will be fixed in short time), so you need to add link to specific repo:
@@ -31,6 +31,14 @@ After this step just include dependency:
 ```
 compile 'io.github.memfis19:annca:0.1.0'
 ```
+## Know issue
+Library has not release yet, so it contains some issues:
+-Quality settings do not switch to accroding media action dynamically
+-Some settings for AnncaConfiguration are still missing
+-Lack of description
+
+Will be fixed shortly.
+
 # [LICENSE](/LICENSE.md)
 
 ###### MIT License
