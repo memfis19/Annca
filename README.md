@@ -1,5 +1,5 @@
 # Annca
-Android solution to simplify work with different camera apis. Include video and photo capturing features with possibily to select quiality for appropriate media action etc. In current solution were used some approaches from <a href="https://github.com/google/grafika">Grafika project</a> and <a href="https://github.com/googlesamples/android-Camera2Video">Google camera samples</a>.
+Android solution to simplify work with different camera apis. Also the main reason of the Annca: make camera view simple to customize, the most first further steps will be directed to make this. Include video and photo capturing features with possibily to select quiality for appropriate media action etc. In current solution were used some approaches from <a href="https://github.com/google/grafika">Grafika project</a> and <a href="https://github.com/googlesamples/android-Camera2Video">Google camera samples</a>.
 
 <img src="https://github.com/memfis19/Annca/blob/master/art/default_camera.png" width="200px" /> <img src="https://github.com/memfis19/Annca/blob/master/art/settings_for_video_limitation.png" width="200px" /><img src="https://github.com/memfis19/Annca/blob/master/art/video_camera.png" width="200" /><img src="https://github.com/memfis19/Annca/blob/master/art/video_low_quality.png" width="200" />
 
@@ -60,7 +60,6 @@ compile 'io.github.memfis19:annca:0.1.0'
 Library has not release yet, so it contains some issues:<br/>
 -Quality settings do not switch to accroding media action dynamically</br>
 -Some settings for AnncaConfiguration are still missing<br/>
--Lack of description<br/>
 
 Will be fixed shortly.
 
