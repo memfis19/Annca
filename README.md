@@ -43,6 +43,17 @@ and thats it. You can use more extended settings i.e.:
 ```
 in this example you request video capturing which is limited by file size for 5Mb and predefined minium video duration for 5 min. To achieve this result Annca will decrease video bit rate, so use it carefully to avoid unexpected result.
 
+##### How to get result?
+```
+ @Override
+  protected void onActivityResult(int requestCode, int resultCode, Intent data) {
+      super.onActivityResult(requestCode, resultCode, data);
+      if (requestCode == CAPTURE_MEDIA && resultCode == RESULT_OK) {
+          String filePath = data.getStringExtra(AnncaConfiguration.Arguments.FILE_PATH);
+      }
+   }
+```
+
 ## How to add to your project?
 For current moment repository not linked to jcenter (will be fixed in short time), so you need to add link to specific repo:
 ```
