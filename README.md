@@ -4,6 +4,31 @@ Android solution to simplify work with different camera apis. Include video and 
 <img src="https://github.com/memfis19/Annca/blob/master/art/default_camera.png" width="200px" /> <img src="https://github.com/memfis19/Annca/blob/master/art/settings_for_video_limitation.png" width="200px" /><img src="https://github.com/memfis19/Annca/blob/master/art/video_camera.png" width="200" /><img src="https://github.com/memfis19/Annca/blob/master/art/video_low_quality.png" width="200" />
 
 ## Example of using
+Add Annca activities to the your app manifest file:
+```
+<activity
+        android:name="io.github.memfis19.annca.internal.ui.camera.Camera1Activity"
+        android:screenOrientation="portrait"
+        android:theme="@style/ThemeFullscreen" />
+<activity
+        android:name="io.github.memfis19.annca.internal.ui.camera2.Camera2Activity"
+        android:screenOrientation="portrait"
+        android:theme="@style/ThemeFullscreen" />
+<activity
+        android:name="io.github.memfis19.annca.internal.ui.preview.PreviewActivity"
+        android:screenOrientation="portrait"
+        android:theme="@style/ThemeFullscreen" />
+```
+#### Please note that `android:screenOrientation="portrait"` is mandatory. In current implementation device rotation is detecting via sensor.
+
+Don't forget to put permissions or request them:
+```
+ <uses-permission android:name="android.permission.CAMERA" />
+    <uses-permission android:name="android.permission.RECORD_AUDIO" />
+    <uses-permission android:name="android.permission.WRITE_EXTERNAL_STORAGE" />
+    <uses-permission android:name="android.permission.READ_EXTERNAL_STORAGE" />
+```
+A code example of the most siimple using:
 ```
  AnncaConfiguration.Builder builder = new AnncaConfiguration.Builder(activity, CAPTURE_MEDIA);
  new Annca(builder.build()).launchCamera();
