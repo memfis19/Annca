@@ -55,17 +55,8 @@ in this example you request video capturing which is limited by file size for 5M
 ```
 
 ## How to add to your project?
-For current moment repository not linked to jcenter (will be fixed in short time), so you need to add link to specific repo:
 ```
-repositories {
-    maven {
-        url  'https://dl.bintray.com/m-e-m-f-i-s/io.github.memfis19/'
-    }
-}
-```
-After this step just include dependency:
-```
-compile 'io.github.memfis19:annca:0.1.0'
+compile 'io.github.memfis19:annca:0.2.0'
 ```
 ## Know issue
 Library has not release yet, so it contains some issues:<br/>
