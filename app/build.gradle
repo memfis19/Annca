@@ -1,11 +1,5 @@
 apply plugin: 'com.android.application'
 
-repositories {
-    maven {
-        url  'https://dl.bintray.com/m-e-m-f-i-s/io.github.memfis19/'
-    }
-}
-
 ext {
     PUBLISH_GROUP_ID = 'io.github.memfis19'
     PUBLISH_ARTIFACT_ID = 'annca'
