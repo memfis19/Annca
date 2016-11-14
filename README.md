@@ -39,6 +39,7 @@ and thats it. You can use more extended settings i.e.:
  videoLimited.setMediaAction(AnncaConfiguration.MEDIA_ACTION_VIDEO);
  videoLimited.setMediaQuality(AnncaConfiguration.MEDIA_QUALITY_AUTO);
  videoLimited.setVideoFileSize(5 * 1024 * 1024);
+ videoLimited.setMinimumVideoDuration(5 * 60 * 1000);
  new Annca(videoLimited.build()).launchCamera();
 ```
 in this example you request video capturing which is limited by file size for 5Mb and predefined minimum video duration for 5 min. To achieve this result Annca will decrease video bit rate, so use it carefully to avoid unexpected result.
@@ -56,15 +57,10 @@ in this example you request video capturing which is limited by file size for 5M
 
 ## How to add to your project?
 ```
-compile 'io.github.memfis19:annca:0.2.0'
+compile 'io.github.memfis19:annca:0.2.1'
 ```
 ## Know issue
-Library has not release yet, so it contains some issues:<br/>
--Quality settings do not switch to accroding media action dynamically<br/>
--Some settings for AnncaConfiguration are still missing<br/>
--5 minutes minimum video duration for video auto quality hardcoded, shortly will be avaliable to configure.<br/>
-
-Will be fixed shortly.
+Library has not release yet, so it contains some issues.
 
 # [LICENSE](/LICENSE.md)
 
