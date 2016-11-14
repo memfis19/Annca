@@ -37,6 +37,7 @@ dependencies {
         exclude group: 'com.android.support', module: 'support-annotations'
     })
     compile "com.android.support:appcompat-v7:$SUPPORT_VERSION"
-    compile 'io.github.memfis19:annca:0.2.0'
+    //    compile 'io.github.memfis19:annca:0.2.0'
     testCompile 'junit:junit:4.12'
+    compile project(':annca')
 }

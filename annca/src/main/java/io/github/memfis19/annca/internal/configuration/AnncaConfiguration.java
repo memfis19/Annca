@@ -47,6 +47,7 @@ public final class AnncaConfiguration {
         String MEDIA_ACTION = "io.memfis19.annca.media_action";
         String MEDIA_QUALITY = "io.memfis19.annca.camera_media_quality";
         String VIDEO_DURATION = "io.memfis19.annca.video_duration";
+        String MINIMUM_VIDEO_DURATION = "io.memfis19.annca.minimum.video_duration";
         String VIDEO_FILE_SIZE = "io.memfis19.annca.camera_video_file_size";
         String FILE_PATH = "io.memfis19.annca.camera_video_file_path";
     }
@@ -98,6 +99,8 @@ public final class AnncaConfiguration {
 
     private long videoFileSize = -1;
 
+    private int minimumVideoDuration = -1;
+
 
     private AnncaConfiguration(Activity activity, int requestCode) {
         this.activity = activity;
@@ -133,6 +136,16 @@ public final class AnncaConfiguration {
         }
 
         /***
+         * @param minimumVideoDurationInMilliseconds - minimum video duration in milliseconds, used only in video mode
+         *                                           for auto quality.
+         * @return
+         */
+        public Builder setMinimumVideoDuration(@IntRange(from = 1000, to = Integer.MAX_VALUE) int minimumVideoDurationInMilliseconds) {
+            anncaConfiguration.minimumVideoDuration = minimumVideoDurationInMilliseconds;
+            return this;
+        }
+
+        /***
          * @param videoSizeInBytes - file size in bytes
          * @return
          */
@@ -144,6 +157,9 @@ public final class AnncaConfiguration {
         public AnncaConfiguration build() throws IllegalArgumentException {
             if (anncaConfiguration.requestCode < 0)
                 throw new IllegalArgumentException("Wrong request code value. Please set the value > 0.");
+            if (anncaConfiguration.mediaQuality == MEDIA_QUALITY_AUTO && anncaConfiguration.minimumVideoDuration < 0) {
+                throw new IllegalStateException("Please provide minimum video duration in milliseconds to use auto quality.");
+            }
 
             return anncaConfiguration;
         }
@@ -176,5 +192,9 @@ public final class AnncaConfiguration {
 
     public long getVideoFileSize() {
         return videoFileSize;
+    }
+
+    public int getMinimumVideoDuration() {
+        return minimumVideoDuration;
     }
 }

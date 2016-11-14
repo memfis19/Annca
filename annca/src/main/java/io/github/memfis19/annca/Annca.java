@@ -64,6 +64,9 @@ public class Annca {
         if (anncaConfiguration.getVideoFileSize() > 0)
             cameraIntent.putExtra(AnncaConfiguration.Arguments.VIDEO_FILE_SIZE, anncaConfiguration.getVideoFileSize());
 
+        if (anncaConfiguration.getMinimumVideoDuration() > 0)
+            cameraIntent.putExtra(AnncaConfiguration.Arguments.MINIMUM_VIDEO_DURATION, anncaConfiguration.getMinimumVideoDuration());
+
         anncaConfiguration.getActivity().startActivityForResult(cameraIntent, anncaConfiguration.getRequestCode());
 
     }

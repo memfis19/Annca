@@ -12,6 +12,8 @@ import android.util.Log;
 import android.util.Size;
 import android.view.TextureView;
 
+import java.util.ArrayList;
+import java.util.List;
 import java.util.concurrent.TimeUnit;
 
 import io.github.memfis19.annca.internal.configuration.AnncaConfiguration;
@@ -36,8 +38,8 @@ public class Camera2Activity extends BaseCameraActivity implements CameraView {
     private Size previewSize;
     private int degrees;
 
-    private CharSequence[] videoQualities;
-    private CharSequence[] photoQualities;
+    private List<CharSequence> videoQualities;
+    private List<CharSequence> photoQualities;
 
     @AnncaConfiguration.CameraFace
     private int cameraFace = AnncaConfiguration.CAMERA_FACE_REAR;
@@ -237,24 +239,32 @@ public class Camera2Activity extends BaseCameraActivity implements CameraView {
 
     @Override
     protected CharSequence[] getVideoQualityOptions() {
-        videoQualities = new CharSequence[]{
-                new VideoQualityOption(AnncaConfiguration.MEDIA_QUALITY_AUTO, (String) cameraController.getCurrentCameraId(), getVideoFileSize(), getMinimumVideoDuration()),
-                new VideoQualityOption(AnncaConfiguration.MEDIA_QUALITY_HIGH, (String) cameraController.getCurrentCameraId(), getVideoFileSize(), getMinimumVideoDuration()),
-                new VideoQualityOption(AnncaConfiguration.MEDIA_QUALITY_MEDIUM, (String) cameraController.getCurrentCameraId(), getVideoFileSize(), getMinimumVideoDuration()),
-                new VideoQualityOption(AnncaConfiguration.MEDIA_QUALITY_LOW, (String) cameraController.getCurrentCameraId(), getVideoFileSize(), getMinimumVideoDuration())
-        };
-        return videoQualities;
+        videoQualities = new ArrayList<>();
+
+        if (getMinimumVideoDuration() > 0)
+            videoQualities.add(new VideoQualityOption(AnncaConfiguration.MEDIA_QUALITY_AUTO, (String) cameraController.getCurrentCameraId(), getVideoFileSize(), getMinimumVideoDuration()));
+        videoQualities.add(new VideoQualityOption(AnncaConfiguration.MEDIA_QUALITY_HIGH, (String) cameraController.getCurrentCameraId(), getVideoFileSize(), getMinimumVideoDuration()));
+        videoQualities.add(new VideoQualityOption(AnncaConfiguration.MEDIA_QUALITY_MEDIUM, (String) cameraController.getCurrentCameraId(), getVideoFileSize(), getMinimumVideoDuration()));
+        videoQualities.add(new VideoQualityOption(AnncaConfiguration.MEDIA_QUALITY_LOW, (String) cameraController.getCurrentCameraId(), getVideoFileSize(), getMinimumVideoDuration()));
+
+        CharSequence[] array = new CharSequence[videoQualities.size()];
+        videoQualities.toArray(array);
+
+        return array;
     }
 
     @Override
     protected CharSequence[] getPhotoQualityOptions() {
-        photoQualities = new CharSequence[]{
-                new PhotoQualityOption(AnncaConfiguration.MEDIA_QUALITY_HIGHEST, Camera2Manager.getInstance().getPhotoSizeForQuality(AnncaConfiguration.MEDIA_QUALITY_HIGHEST)),
-                new PhotoQualityOption(AnncaConfiguration.MEDIA_QUALITY_HIGH, Camera2Manager.getInstance().getPhotoSizeForQuality(AnncaConfiguration.MEDIA_QUALITY_HIGH)),
-                new PhotoQualityOption(AnncaConfiguration.MEDIA_QUALITY_MEDIUM, Camera2Manager.getInstance().getPhotoSizeForQuality(AnncaConfiguration.MEDIA_QUALITY_MEDIUM)),
-                new PhotoQualityOption(AnncaConfiguration.MEDIA_QUALITY_LOWEST, Camera2Manager.getInstance().getPhotoSizeForQuality(AnncaConfiguration.MEDIA_QUALITY_LOWEST))
-        };
-        return photoQualities;
+        photoQualities = new ArrayList<>();
+        photoQualities.add(new PhotoQualityOption(AnncaConfiguration.MEDIA_QUALITY_HIGHEST, Camera2Manager.getInstance().getPhotoSizeForQuality(AnncaConfiguration.MEDIA_QUALITY_HIGHEST)));
+        photoQualities.add(new PhotoQualityOption(AnncaConfiguration.MEDIA_QUALITY_HIGH, Camera2Manager.getInstance().getPhotoSizeForQuality(AnncaConfiguration.MEDIA_QUALITY_HIGH)));
+        photoQualities.add(new PhotoQualityOption(AnncaConfiguration.MEDIA_QUALITY_MEDIUM, Camera2Manager.getInstance().getPhotoSizeForQuality(AnncaConfiguration.MEDIA_QUALITY_MEDIUM)));
+        photoQualities.add(new PhotoQualityOption(AnncaConfiguration.MEDIA_QUALITY_LOWEST, Camera2Manager.getInstance().getPhotoSizeForQuality(AnncaConfiguration.MEDIA_QUALITY_LOWEST)));
+
+        CharSequence[] array = new CharSequence[photoQualities.size()];
+        photoQualities.toArray(array);
+
+        return array;
     }
 
     @Override
@@ -282,7 +292,7 @@ public class Camera2Activity extends BaseCameraActivity implements CameraView {
         return new DialogInterface.OnClickListener() {
             @Override
             public void onClick(DialogInterface dialogInterface, int i) {
-                newQuality = ((VideoQualityOption) videoQualities[i]).getMediaQuality();
+                newQuality = ((VideoQualityOption) videoQualities.get(i)).getMediaQuality();
             }
         };
     }
@@ -292,7 +302,7 @@ public class Camera2Activity extends BaseCameraActivity implements CameraView {
         return new DialogInterface.OnClickListener() {
             @Override
             public void onClick(DialogInterface dialogInterface, int i) {
-                newQuality = ((PhotoQualityOption) photoQualities[i]).getMediaQuality();
+                newQuality = ((PhotoQualityOption) photoQualities.get(i)).getMediaQuality();
             }
         };
     }

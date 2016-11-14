@@ -9,7 +9,6 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.view.WindowManager;
 
-
 import io.github.memfis19.annca.R;
 import io.github.memfis19.annca.internal.configuration.AnncaConfiguration;
 import io.github.memfis19.annca.internal.controller.CameraController;
@@ -163,7 +162,7 @@ public abstract class BaseCameraActivity extends CameraActivity
     protected void onSettingsEvent() {
         AlertDialog.Builder builder = new AlertDialog.Builder(this);
 
-        if (getMediaAction() == AnncaConfiguration.MEDIA_ACTION_VIDEO) {
+        if (currentMediaActionState == MediaActionSwitchView.ACTION_VIDEO) {
             builder.setSingleChoiceItems(getVideoQualityOptions(), getVideoOptionCheckedIndex(), getVideoOptionSelectedListener());
             if (getVideoFileSize() > 0)
                 builder.setTitle(String.format(getString(R.string.settings_video_quality_title),

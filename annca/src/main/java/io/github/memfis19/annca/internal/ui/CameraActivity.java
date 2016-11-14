@@ -38,6 +38,7 @@ public abstract class CameraActivity extends AppCompatActivity
 
     protected int videoDuration = -1;
     protected long videoFileSize = -1;
+    protected int minimumVideoDuration = -1;
 
     private int degrees = -1;
 
@@ -69,17 +70,54 @@ public abstract class CameraActivity extends AppCompatActivity
             if (bundle.containsKey(AnncaConfiguration.Arguments.REQUEST_CODE))
                 requestCode = bundle.getInt(AnncaConfiguration.Arguments.REQUEST_CODE);
 
-            if (bundle.containsKey(AnncaConfiguration.Arguments.MEDIA_ACTION))
-                mediaAction = bundle.getInt(AnncaConfiguration.Arguments.MEDIA_ACTION);
+            if (bundle.containsKey(AnncaConfiguration.Arguments.MEDIA_ACTION)) {
+                switch (bundle.getInt(AnncaConfiguration.Arguments.MEDIA_ACTION)) {
+                    case AnncaConfiguration.MEDIA_ACTION_PHOTO:
+                        mediaAction = AnncaConfiguration.MEDIA_ACTION_PHOTO;
+                        break;
+                    case AnncaConfiguration.MEDIA_ACTION_VIDEO:
+                        mediaAction = AnncaConfiguration.MEDIA_ACTION_VIDEO;
+                        break;
+                    default:
+                        mediaAction = AnncaConfiguration.MEDIA_ACTION_UNSPECIFIED;
+                        break;
+                }
+            }
 
-            if (bundle.containsKey(AnncaConfiguration.Arguments.MEDIA_QUALITY))
-                mediaQuality = bundle.getInt(AnncaConfiguration.Arguments.MEDIA_QUALITY);
+            if (bundle.containsKey(AnncaConfiguration.Arguments.MEDIA_QUALITY)) {
+                switch (bundle.getInt(AnncaConfiguration.Arguments.MEDIA_QUALITY)) {
+                    case AnncaConfiguration.MEDIA_QUALITY_AUTO:
+                        mediaQuality = AnncaConfiguration.MEDIA_QUALITY_AUTO;
+                        break;
+                    case AnncaConfiguration.MEDIA_QUALITY_HIGHEST:
+                        mediaQuality = AnncaConfiguration.MEDIA_QUALITY_HIGHEST;
+                        break;
+                    case AnncaConfiguration.MEDIA_QUALITY_HIGH:
+                        mediaQuality = AnncaConfiguration.MEDIA_QUALITY_HIGH;
+                        break;
+                    case AnncaConfiguration.MEDIA_QUALITY_MEDIUM:
+                        mediaQuality = AnncaConfiguration.MEDIA_QUALITY_MEDIUM;
+                        break;
+                    case AnncaConfiguration.MEDIA_QUALITY_LOW:
+                        mediaQuality = AnncaConfiguration.MEDIA_QUALITY_LOW;
+                        break;
+                    case AnncaConfiguration.MEDIA_QUALITY_LOWEST:
+                        mediaQuality = AnncaConfiguration.MEDIA_QUALITY_LOWEST;
+                        break;
+                    default:
+                        mediaQuality = AnncaConfiguration.MEDIA_QUALITY_MEDIUM;
+                        break;
+                }
+            }
 
             if (bundle.containsKey(AnncaConfiguration.Arguments.VIDEO_DURATION))
                 videoDuration = bundle.getInt(AnncaConfiguration.Arguments.VIDEO_DURATION);
 
             if (bundle.containsKey(AnncaConfiguration.Arguments.VIDEO_FILE_SIZE))
                 videoFileSize = bundle.getLong(AnncaConfiguration.Arguments.VIDEO_FILE_SIZE);
+
+            if (bundle.containsKey(AnncaConfiguration.Arguments.MINIMUM_VIDEO_DURATION))
+                minimumVideoDuration = bundle.getInt(AnncaConfiguration.Arguments.MINIMUM_VIDEO_DURATION);
         }
     }
 
@@ -158,7 +196,7 @@ public abstract class CameraActivity extends AppCompatActivity
 
     @Override
     public int getMinimumVideoDuration() {
-        return 60 * 5;
+        return minimumVideoDuration / 1000;
     }
 
     @Override
