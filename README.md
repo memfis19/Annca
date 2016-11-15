@@ -42,7 +42,7 @@ and thats it. You can use more extended settings i.e.:
  videoLimited.setMinimumVideoDuration(5 * 60 * 1000);
  new Annca(videoLimited.build()).launchCamera();
 ```
-in this example you request video capturing which is limited by file size for 5Mb and predefined minimum video duration for 5 min. To achieve this result Annca will decrease video bit rate, so use it carefully to avoid unexpected result.
+in this example you request video capturing which is limited by file size for 5Mb and predefined minimum video duration for 5 min. To achieve this result Annca will decrease video bit rate, so use it carefully to avoid unexpected result (i.e. low quality).
 
 ##### How to get result?
 ```
