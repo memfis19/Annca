@@ -67,6 +67,9 @@ Library has not release yet, so it contains some issues.
 -Improve Camera customizing possibilities;</br>
 -Extend annca configuration settings.
 
+## Bugs and Feedback
+For bugs, feature requests, and discussion please use <a href="https://github.com/memfis19/Annca/issues">GitHub Issues</a>.
+
 # [LICENSE](/LICENSE.md)
 
 ###### MIT License
