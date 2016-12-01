@@ -21,10 +21,9 @@ import android.widget.TextView;
 
 import java.io.File;
 
-
 import io.github.memfis19.annca.R;
 import io.github.memfis19.annca.internal.configuration.AnncaConfiguration;
-import io.github.memfis19.annca.internal.ui.CameraActivity;
+import io.github.memfis19.annca.internal.ui.BaseAnncaActivity;
 import io.github.memfis19.annca.internal.ui.view.AspectFrameLayout;
 import io.github.memfis19.annca.internal.utils.AnncaImageLoader;
 import io.github.memfis19.annca.internal.utils.Utils;
@@ -334,13 +333,13 @@ public class PreviewActivity extends AppCompatActivity implements View.OnClickLi
     public void onClick(View view) {
         Intent resultIntent = new Intent();
         if (view.getId() == R.id.confirm_media_result) {
-            resultIntent.putExtra(RESPONSE_CODE_ARG, CameraActivity.ACTION_CONFIRM).putExtra(FILE_PATH_ARG, previewFilePath);
+            resultIntent.putExtra(RESPONSE_CODE_ARG, BaseAnncaActivity.ACTION_CONFIRM).putExtra(FILE_PATH_ARG, previewFilePath);
         } else if (view.getId() == R.id.re_take_media) {
             deleteMediaFile();
-            resultIntent.putExtra(RESPONSE_CODE_ARG, CameraActivity.ACTION_RETAKE);
+            resultIntent.putExtra(RESPONSE_CODE_ARG, BaseAnncaActivity.ACTION_RETAKE);
         } else if (view.getId() == R.id.cancel_media_action) {
             deleteMediaFile();
-            resultIntent.putExtra(RESPONSE_CODE_ARG, CameraActivity.ACTION_CANCEL);
+            resultIntent.putExtra(RESPONSE_CODE_ARG, BaseAnncaActivity.ACTION_CANCEL);
         }
         setResult(RESULT_OK, resultIntent);
         finish();
@@ -358,7 +357,7 @@ public class PreviewActivity extends AppCompatActivity implements View.OnClickLi
     }
 
     public static boolean isResultConfirm(@NonNull Intent resultIntent) {
-        return CameraActivity.ACTION_CONFIRM == resultIntent.getIntExtra(RESPONSE_CODE_ARG, -1);
+        return BaseAnncaActivity.ACTION_CONFIRM == resultIntent.getIntExtra(RESPONSE_CODE_ARG, -1);
     }
 
     public static String getMediaFilePatch(@NonNull Intent resultIntent) {
@@ -366,11 +365,11 @@ public class PreviewActivity extends AppCompatActivity implements View.OnClickLi
     }
 
     public static boolean isResultRetake(@NonNull Intent resultIntent) {
-        return CameraActivity.ACTION_RETAKE == resultIntent.getIntExtra(RESPONSE_CODE_ARG, -1);
+        return BaseAnncaActivity.ACTION_RETAKE == resultIntent.getIntExtra(RESPONSE_CODE_ARG, -1);
     }
 
     public static boolean isResultCancel(@NonNull Intent resultIntent) {
-        return CameraActivity.ACTION_CANCEL == resultIntent.getIntExtra(RESPONSE_CODE_ARG, -1);
+        return BaseAnncaActivity.ACTION_CANCEL == resultIntent.getIntExtra(RESPONSE_CODE_ARG, -1);
     }
 
 }
