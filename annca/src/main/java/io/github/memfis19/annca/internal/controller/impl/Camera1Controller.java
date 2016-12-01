@@ -1,7 +1,7 @@
 package io.github.memfis19.annca.internal.controller.impl;
 
-import android.hardware.Camera;
 import android.os.Bundle;
+import android.util.Log;
 import android.view.SurfaceHolder;
 
 import java.io.File;
@@ -15,7 +15,9 @@ import io.github.memfis19.annca.internal.manager.listener.CameraCloseListener;
 import io.github.memfis19.annca.internal.manager.listener.CameraOpenListener;
 import io.github.memfis19.annca.internal.manager.listener.CameraPhotoListener;
 import io.github.memfis19.annca.internal.manager.listener.CameraVideoListener;
+import io.github.memfis19.annca.internal.ui.view.AutoFitSurfaceView;
 import io.github.memfis19.annca.internal.utils.CameraHelper;
+import io.github.memfis19.annca.internal.utils.Size;
 
 /**
  * Created by memfis on 7/7/16.
@@ -23,17 +25,16 @@ import io.github.memfis19.annca.internal.utils.CameraHelper;
 
 @SuppressWarnings("deprecation")
 public class Camera1Controller implements io.github.memfis19.annca.internal.controller.CameraController<Integer>,
-        CameraOpenListener<Integer, Camera.Size, SurfaceHolder.Callback>, CameraPhotoListener, CameraCloseListener<Integer>, CameraVideoListener<Camera.Size> {
+        CameraOpenListener<Integer, SurfaceHolder.Callback>, CameraPhotoListener, CameraCloseListener<Integer>, CameraVideoListener {
 
     private final static String TAG = "Camera1Controller";
 
-    private CameraView cameraView;
+    private Integer currentCameraId;
     private ConfigurationProvider configurationProvider;
-    private CameraManager<Integer, Camera.Size, SurfaceHolder.Callback> cameraManager;
+    private CameraManager<Integer, SurfaceHolder.Callback> cameraManager;
+    private CameraView cameraView;
 
     private File outputFile;
-
-    private Integer currentCameraId;
 
     public Camera1Controller(CameraView cameraView, ConfigurationProvider configurationProvider) {
         this.cameraView = cameraView;
@@ -108,11 +109,6 @@ public class Camera1Controller implements io.github.memfis19.annca.internal.cont
     }
 
     @Override
-    public int getCameraOrientation() {
-        return 0;
-    }
-
-    @Override
     public File getOutputFile() {
         return outputFile;
     }
@@ -122,17 +118,24 @@ public class Camera1Controller implements io.github.memfis19.annca.internal.cont
         return currentCameraId;
     }
 
-    //----------------Private internal methods-------------------
 
     @Override
-    public void onCameraOpened(Integer cameraId, Camera.Size previewSize, SurfaceHolder.Callback surfaceCallback) {
-        cameraView.updateCameraSwitcher(getNumberOfCameras());
+    public void onCameraOpened(Integer cameraId, Size previewSize, SurfaceHolder.Callback surfaceCallback) {
         cameraView.updateUiForMediaAction(configurationProvider.getMediaAction());
-        cameraView.updateCameraPreview(previewSize, surfaceCallback);
+        cameraView.updateCameraPreview(previewSize, new AutoFitSurfaceView(cameraView.getActivity(), surfaceCallback));
+        cameraView.updateCameraSwitcher(getNumberOfCameras());
     }
 
     @Override
     public void onCameraOpenError() {
+        Log.e(TAG, "onCameraOpenError");
+    }
+
+    @Override
+    public void onCameraClosed(Integer closedCameraId) {
+        cameraView.releaseCameraPreview();
+
+        cameraManager.openCamera(currentCameraId, this);
     }
 
     @Override
@@ -145,15 +148,8 @@ public class Camera1Controller implements io.github.memfis19.annca.internal.cont
     }
 
     @Override
-    public void onCameraClosed(Integer closedCameraId) {
-        cameraView.releaseCameraPreview();
-
-        cameraManager.openCamera(currentCameraId, this);
-    }
-
-    @Override
-    public void onVideoRecordStarted(Camera.Size videoSize) {
-        cameraView.onVideoRecordStart(videoSize.width, videoSize.height);
+    public void onVideoRecordStarted(Size videoSize) {
+        cameraView.onVideoRecordStart(videoSize.getWidth(), videoSize.getHeight());
     }
 
     @Override
@@ -164,5 +160,10 @@ public class Camera1Controller implements io.github.memfis19.annca.internal.cont
     @Override
     public void onVideoRecordError() {
 
+    }
+
+    @Override
+    public CameraManager getCameraManager() {
+        return cameraManager;
     }
 }

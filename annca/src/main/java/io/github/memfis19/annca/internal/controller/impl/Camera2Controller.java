@@ -4,7 +4,6 @@ import android.annotation.TargetApi;
 import android.os.Build;
 import android.os.Bundle;
 import android.util.Log;
-import android.util.Size;
 import android.view.TextureView;
 
 import java.io.File;
@@ -19,26 +18,26 @@ import io.github.memfis19.annca.internal.manager.listener.CameraCloseListener;
 import io.github.memfis19.annca.internal.manager.listener.CameraOpenListener;
 import io.github.memfis19.annca.internal.manager.listener.CameraPhotoListener;
 import io.github.memfis19.annca.internal.manager.listener.CameraVideoListener;
+import io.github.memfis19.annca.internal.ui.view.AutoFitTextureView;
 import io.github.memfis19.annca.internal.utils.CameraHelper;
+import io.github.memfis19.annca.internal.utils.Size;
 
 /**
  * Created by memfis on 7/6/16.
  */
 @TargetApi(Build.VERSION_CODES.LOLLIPOP)
 public class Camera2Controller implements CameraController<String>,
-        CameraOpenListener<String, Size, TextureView.SurfaceTextureListener>,
-        CameraPhotoListener, CameraVideoListener<Size>, CameraCloseListener<String> {
+        CameraOpenListener<String, TextureView.SurfaceTextureListener>,
+        CameraPhotoListener, CameraVideoListener, CameraCloseListener<String> {
 
     private final static String TAG = "Camera2Controller";
 
-    private CameraManager<String, Size, TextureView.SurfaceTextureListener> camera2Manager;
-
     private String currentCameraId;
+    private ConfigurationProvider configurationProvider;
+    private CameraManager<String, TextureView.SurfaceTextureListener> camera2Manager;
+    private CameraView cameraView;
 
     private File outputFile;
-
-    private CameraView cameraView;
-    private ConfigurationProvider configurationProvider;
 
     public Camera2Controller(CameraView cameraView, ConfigurationProvider configurationProvider) {
         this.cameraView = cameraView;
@@ -114,13 +113,6 @@ public class Camera2Controller implements CameraController<String>,
     }
 
     @Override
-    public int getCameraOrientation() {
-        if (camera2Manager.getCurrentCameraId().equals(camera2Manager.getFaceBackCameraId()))
-            return camera2Manager.getFaceBackCameraOrientation();
-        return camera2Manager.getFaceFrontCameraOrientation();
-    }
-
-    @Override
     public File getOutputFile() {
         return outputFile;
     }
@@ -133,7 +125,7 @@ public class Camera2Controller implements CameraController<String>,
     @Override
     public void onCameraOpened(String openedCameraId, Size previewSize, TextureView.SurfaceTextureListener surfaceTextureListener) {
         cameraView.updateUiForMediaAction(AnncaConfiguration.MEDIA_ACTION_UNSPECIFIED);
-        cameraView.updateCameraPreview(previewSize, surfaceTextureListener);
+        cameraView.updateCameraPreview(previewSize, new AutoFitTextureView(cameraView.getActivity(), surfaceTextureListener));
         cameraView.updateCameraSwitcher(camera2Manager.getNumberOfCameras());
     }
 
@@ -156,7 +148,6 @@ public class Camera2Controller implements CameraController<String>,
 
     @Override
     public void onPhotoTakeError() {
-
     }
 
     @Override
@@ -172,5 +163,10 @@ public class Camera2Controller implements CameraController<String>,
     @Override
     public void onVideoRecordError() {
 
+    }
+
+    @Override
+    public CameraManager getCameraManager() {
+        return camera2Manager;
     }
 }

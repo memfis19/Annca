@@ -12,12 +12,13 @@ import android.util.Log;
 
 import io.github.memfis19.annca.internal.configuration.AnncaConfiguration;
 import io.github.memfis19.annca.internal.configuration.ConfigurationProvider;
+import io.github.memfis19.annca.internal.utils.Size;
 
 /**
  * Created by memfis on 8/14/16.
  */
-abstract class BaseCameraManager<CameraId, Size, SurfaceListener>
-        implements io.github.memfis19.annca.internal.manager.CameraManager<CameraId, Size, SurfaceListener>, MediaRecorder.OnInfoListener {
+abstract class BaseCameraManager<CameraId, SurfaceListener>
+        implements io.github.memfis19.annca.internal.manager.CameraManager<CameraId, SurfaceListener>, MediaRecorder.OnInfoListener {
 
     private static final String TAG = "BaseCameraManager";
 
@@ -82,13 +83,13 @@ abstract class BaseCameraManager<CameraId, Size, SurfaceListener>
         }
     }
 
-    void startBackgroundThread() {
+    private void startBackgroundThread() {
         backgroundThread = new HandlerThread(TAG, Process.THREAD_PRIORITY_BACKGROUND);
         backgroundThread.start();
         backgroundHandler = new Handler(backgroundThread.getLooper());
     }
 
-    void stopBackgroundThread() {
+    private void stopBackgroundThread() {
         if (Build.VERSION.SDK_INT > 17) {
             backgroundThread.quitSafely();
         } else backgroundThread.quit();

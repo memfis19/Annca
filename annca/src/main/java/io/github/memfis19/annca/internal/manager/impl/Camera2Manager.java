@@ -22,7 +22,6 @@ import android.support.annotation.IntDef;
 import android.support.annotation.NonNull;
 import android.text.TextUtils;
 import android.util.Log;
-import android.util.Size;
 import android.view.Display;
 import android.view.Surface;
 import android.view.TextureView;
@@ -45,21 +44,22 @@ import io.github.memfis19.annca.internal.manager.listener.CameraPhotoListener;
 import io.github.memfis19.annca.internal.manager.listener.CameraVideoListener;
 import io.github.memfis19.annca.internal.utils.CameraHelper;
 import io.github.memfis19.annca.internal.utils.ImageSaver;
+import io.github.memfis19.annca.internal.utils.Size;
 
 /**
  * Created by memfis on 8/9/16.
  */
 @TargetApi(Build.VERSION_CODES.LOLLIPOP)
-public final class Camera2Manager extends BaseCameraManager<String, Size, TextureView.SurfaceTextureListener>
+public final class Camera2Manager extends BaseCameraManager<String, TextureView.SurfaceTextureListener>
         implements ImageReader.OnImageAvailableListener, TextureView.SurfaceTextureListener {
 
     private final static String TAG = "Camera2Manager";
 
     private static Camera2Manager currentInstance;
 
-    private CameraOpenListener<String, Size, TextureView.SurfaceTextureListener> cameraOpenListener;
+    private CameraOpenListener<String, TextureView.SurfaceTextureListener> cameraOpenListener;
     private CameraPhotoListener cameraPhotoListener;
-    private CameraVideoListener<Size> cameraVideoListener;
+    private CameraVideoListener cameraVideoListener;
 
     private File outputPath;
 
@@ -196,7 +196,7 @@ public final class Camera2Manager extends BaseCameraManager<String, Size, Textur
     }
 
     @Override
-    public void openCamera(String cameraId, final CameraOpenListener<String, Size, TextureView.SurfaceTextureListener> cameraOpenListener) {
+    public void openCamera(String cameraId, final CameraOpenListener<String, TextureView.SurfaceTextureListener> cameraOpenListener) {
         this.currentCameraId = cameraId;
         this.cameraOpenListener = cameraOpenListener;
         backgroundHandler.post(new Runnable() {
@@ -267,11 +267,11 @@ public final class Camera2Manager extends BaseCameraManager<String, Size, Textur
     @Override
     public Size getPhotoSizeForQuality(@AnncaConfiguration.MediaQuality int mediaQuality) {
         StreamConfigurationMap map = currentCameraId.equals(faceBackCameraId) ? backCameraStreamConfigurationMap : frontCameraStreamConfigurationMap;
-        return CameraHelper.getPictureSize(map.getOutputSizes(ImageFormat.JPEG), mediaQuality);
+        return CameraHelper.getPictureSize(Size.fromArray2(map.getOutputSizes(ImageFormat.JPEG)), mediaQuality);
     }
 
     @Override
-    public void startVideoRecord(File videoFile, final CameraVideoListener<Size> cameraVideoListener) {
+    public void startVideoRecord(File videoFile, final CameraVideoListener cameraVideoListener) {
         if (isVideoRecording || texture == null) return;
 
         this.outputPath = videoFile;
@@ -491,17 +491,17 @@ public final class Camera2Manager extends BaseCameraManager<String, Size, Textur
             } else
                 camcorderProfile = CameraHelper.getCamcorderProfile(configurationProvider.getMediaQuality(), currentCameraId);
 
-            videoSize = CameraHelper.chooseOptimalSize(map.getOutputSizes(MediaRecorder.class),
+            videoSize = CameraHelper.chooseOptimalSize(Size.fromArray2(map.getOutputSizes(MediaRecorder.class)),
                     windowSize.getWidth(), windowSize.getHeight(), new Size(camcorderProfile.videoFrameWidth, camcorderProfile.videoFrameHeight));
 
             if (videoSize == null || videoSize.getWidth() > camcorderProfile.videoFrameWidth
                     || videoSize.getHeight() > camcorderProfile.videoFrameHeight)
-                videoSize = CameraHelper.getSizeWithClosestRatio(map.getOutputSizes(MediaRecorder.class), camcorderProfile.videoFrameWidth, camcorderProfile.videoFrameHeight);
+                videoSize = CameraHelper.getSizeWithClosestRatio(Size.fromArray2(map.getOutputSizes(MediaRecorder.class)), camcorderProfile.videoFrameWidth, camcorderProfile.videoFrameHeight);
             else if (videoSize == null || videoSize.getWidth() > camcorderProfile.videoFrameWidth
                     || videoSize.getHeight() > camcorderProfile.videoFrameHeight)
-                videoSize = CameraHelper.getSizeWithClosestRatio(map.getOutputSizes(MediaRecorder.class), camcorderProfile.videoFrameWidth, camcorderProfile.videoFrameHeight);
+                videoSize = CameraHelper.getSizeWithClosestRatio(Size.fromArray2(map.getOutputSizes(MediaRecorder.class)), camcorderProfile.videoFrameWidth, camcorderProfile.videoFrameHeight);
 
-            photoSize = CameraHelper.getPictureSize(map.getOutputSizes(ImageFormat.JPEG),
+            photoSize = CameraHelper.getPictureSize(Size.fromArray2(map.getOutputSizes(ImageFormat.JPEG)),
                     configurationProvider.getMediaQuality() == AnncaConfiguration.MEDIA_QUALITY_AUTO
                             ? AnncaConfiguration.MEDIA_QUALITY_HIGHEST : configurationProvider.getMediaQuality());
 
@@ -511,13 +511,13 @@ public final class Camera2Manager extends BaseCameraManager<String, Size, Textur
 
             if (configurationProvider.getMediaAction() == AnncaConfiguration.MEDIA_ACTION_PHOTO
                     || configurationProvider.getMediaAction() == AnncaConfiguration.MEDIA_ACTION_UNSPECIFIED) {
-                previewSize = CameraHelper.chooseOptimalSize(map.getOutputSizes(SurfaceTexture.class), windowSize.getWidth(), windowSize.getHeight(), photoSize);
+                previewSize = CameraHelper.chooseOptimalSize(Size.fromArray2(map.getOutputSizes(SurfaceTexture.class)), windowSize.getWidth(), windowSize.getHeight(), photoSize);
                 if (previewSize == null)
-                    previewSize = CameraHelper.getSizeWithClosestRatio(map.getOutputSizes(SurfaceTexture.class), photoSize.getWidth(), photoSize.getHeight());
+                    previewSize = CameraHelper.getSizeWithClosestRatio(Size.fromArray2(map.getOutputSizes(SurfaceTexture.class)), photoSize.getWidth(), photoSize.getHeight());
             } else {
-                previewSize = CameraHelper.chooseOptimalSize(map.getOutputSizes(SurfaceTexture.class), windowSize.getWidth(), windowSize.getHeight(), videoSize);
+                previewSize = CameraHelper.chooseOptimalSize(Size.fromArray2(map.getOutputSizes(SurfaceTexture.class)), windowSize.getWidth(), windowSize.getHeight(), videoSize);
                 if (previewSize == null)
-                    previewSize = CameraHelper.getSizeWithClosestRatio(map.getOutputSizes(SurfaceTexture.class), videoSize.getWidth(), videoSize.getHeight());
+                    previewSize = CameraHelper.getSizeWithClosestRatio(Size.fromArray2(map.getOutputSizes(SurfaceTexture.class)), videoSize.getWidth(), videoSize.getHeight());
             }
         } catch (Exception e) {
             Log.e(TAG, "Error while setup camera sizes.", e);

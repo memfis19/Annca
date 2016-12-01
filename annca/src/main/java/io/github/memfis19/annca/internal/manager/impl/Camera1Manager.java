@@ -24,12 +24,13 @@ import io.github.memfis19.annca.internal.manager.listener.CameraOpenListener;
 import io.github.memfis19.annca.internal.manager.listener.CameraPhotoListener;
 import io.github.memfis19.annca.internal.manager.listener.CameraVideoListener;
 import io.github.memfis19.annca.internal.utils.CameraHelper;
+import io.github.memfis19.annca.internal.utils.Size;
 
 /**
  * Created by memfis on 8/14/16.
  */
 @SuppressWarnings("deprecation")
-public class Camera1Manager extends BaseCameraManager<Integer, Camera.Size, SurfaceHolder.Callback>
+public class Camera1Manager extends BaseCameraManager<Integer, SurfaceHolder.Callback>
         implements SurfaceHolder.Callback, Camera.PictureCallback {
 
     private static final String TAG = "Camera1Manager";
@@ -43,7 +44,7 @@ public class Camera1Manager extends BaseCameraManager<Integer, Camera.Size, Surf
     private int displayRotation = 0;
 
     private File outputPath;
-    private CameraVideoListener<Camera.Size> videoListener;
+    private CameraVideoListener videoListener;
     private CameraPhotoListener photoListener;
 
     private Camera1Manager() {
@@ -57,7 +58,7 @@ public class Camera1Manager extends BaseCameraManager<Integer, Camera.Size, Surf
 
     @Override
     public void openCamera(final Integer cameraId,
-                           final CameraOpenListener<Integer, Camera.Size, SurfaceHolder.Callback> cameraOpenListener) {
+                           final CameraOpenListener<Integer, SurfaceHolder.Callback> cameraOpenListener) {
         this.currentCameraId = cameraId;
         backgroundHandler.post(new Runnable() {
             @Override
@@ -123,7 +124,7 @@ public class Camera1Manager extends BaseCameraManager<Integer, Camera.Size, Surf
     }
 
     @Override
-    public void startVideoRecord(final File videoFile, CameraVideoListener<Camera.Size> cameraVideoListener) {
+    public void startVideoRecord(final File videoFile, CameraVideoListener cameraVideoListener) {
         if (isVideoRecording) return;
 
         this.outputPath = videoFile;
@@ -202,8 +203,8 @@ public class Camera1Manager extends BaseCameraManager<Integer, Camera.Size, Surf
     }
 
     @Override
-    public Camera.Size getPhotoSizeForQuality(@AnncaConfiguration.MediaQuality int mediaQuality) {
-        return CameraHelper.getPictureSize(camera.getParameters().getSupportedPictureSizes(), mediaQuality);
+    public Size getPhotoSizeForQuality(@AnncaConfiguration.MediaQuality int mediaQuality) {
+        return CameraHelper.getPictureSize(Size.fromList(camera.getParameters().getSupportedPictureSizes()), mediaQuality);
     }
 
     @Override
@@ -214,11 +215,11 @@ public class Camera1Manager extends BaseCameraManager<Integer, Camera.Size, Surf
             } else
                 camcorderProfile = CameraHelper.getCamcorderProfile(configurationProvider.getMediaQuality(), currentCameraId);
 
-            List<Camera.Size> previewSizes = camera.getParameters().getSupportedPreviewSizes();
-            List<Camera.Size> pictureSizes = camera.getParameters().getSupportedPictureSizes();
-            List<Camera.Size> videoSizes;
+            List<Size> previewSizes = Size.fromList(camera.getParameters().getSupportedPreviewSizes());
+            List<Size> pictureSizes = Size.fromList(camera.getParameters().getSupportedPictureSizes());
+            List<Size> videoSizes;
             if (Build.VERSION.SDK_INT > 10)
-                videoSizes = camera.getParameters().getSupportedVideoSizes();
+                videoSizes = Size.fromList(camera.getParameters().getSupportedVideoSizes());
             else videoSizes = previewSizes;
 
             videoSize = CameraHelper.getSizeWithClosestRatio(
@@ -232,9 +233,9 @@ public class Camera1Manager extends BaseCameraManager<Integer, Camera.Size, Surf
 
             if (configurationProvider.getMediaAction() == AnncaConfiguration.MEDIA_ACTION_PHOTO
                     || configurationProvider.getMediaAction() == AnncaConfiguration.MEDIA_ACTION_UNSPECIFIED) {
-                previewSize = CameraHelper.getSizeWithClosestRatio(previewSizes, photoSize.width, photoSize.height);
+                previewSize = CameraHelper.getSizeWithClosestRatio(previewSizes, photoSize.getWidth(), photoSize.getHeight());
             } else {
-                previewSize = CameraHelper.getSizeWithClosestRatio(previewSizes, videoSize.width, videoSize.height);
+                previewSize = CameraHelper.getSizeWithClosestRatio(previewSizes, videoSize.getWidth(), videoSize.getHeight());
             }
         } catch (Exception e) {
             Log.e(TAG, "Error while setup camera sizes.");
@@ -254,7 +255,7 @@ public class Camera1Manager extends BaseCameraManager<Integer, Camera.Size, Surf
 
             videoRecorder.setOutputFormat(camcorderProfile.fileFormat);
             videoRecorder.setVideoFrameRate(camcorderProfile.videoFrameRate);
-            videoRecorder.setVideoSize(videoSize.width, videoSize.height);
+            videoRecorder.setVideoSize(videoSize.getWidth(), videoSize.getHeight());
             videoRecorder.setVideoEncodingBitRate(camcorderProfile.videoBitRate);
             videoRecorder.setVideoEncoder(camcorderProfile.videoCodec);
 
@@ -370,8 +371,8 @@ public class Camera1Manager extends BaseCameraManager<Integer, Camera.Size, Surf
                 parameters.setVideoStabilization(true);
             }
 
-            parameters.setPreviewSize(previewSize.width, previewSize.height);
-            parameters.setPictureSize(photoSize.width, photoSize.height);
+            parameters.setPreviewSize(previewSize.getWidth(), previewSize.getHeight());
+            parameters.setPictureSize(photoSize.getWidth(), photoSize.getHeight());
 
             camera.setParameters(parameters);
             camera.setPreviewDisplay(surfaceHolder);
@@ -424,7 +425,7 @@ public class Camera1Manager extends BaseCameraManager<Integer, Camera.Size, Surf
         } else if (configurationProvider.getMediaQuality() == AnncaConfiguration.MEDIA_QUALITY_HIGHEST) {
             parameters.setJpegQuality(100);
         }
-        parameters.setPictureSize(photoSize.width, photoSize.height);
+        parameters.setPictureSize(photoSize.getWidth(), photoSize.getHeight());
 
         camera.setParameters(parameters);
     }

@@ -124,7 +124,8 @@ public abstract class BaseCameraActivity extends CameraActivity
     }
 
     @Override
-    public void onFlashModeChanged(FlashSwitchView.FlashMode mode) {
+    public void onFlashModeChanged(int mode) {
+
     }
 
     @Override

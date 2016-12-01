@@ -3,7 +3,6 @@ package io.github.memfis19.annca.internal.utils;
 import android.annotation.TargetApi;
 import android.content.Context;
 import android.content.pm.PackageManager;
-import android.hardware.Camera;
 import android.hardware.camera2.CameraCharacteristics;
 import android.hardware.camera2.CameraManager;
 import android.media.CamcorderProfile;
@@ -11,7 +10,6 @@ import android.os.Build;
 import android.os.Environment;
 import android.text.TextUtils;
 import android.util.Log;
-import android.util.Size;
 
 import java.io.File;
 import java.text.SimpleDateFormat;
@@ -101,15 +99,15 @@ public final class CameraHelper {
     }
 
     @SuppressWarnings("deprecation")
-    public static Camera.Size getPictureSize(List<Camera.Size> choices, @AnncaConfiguration.MediaQuality int mediaQuality) {
+    public static Size getPictureSize(List<Size> choices, @AnncaConfiguration.MediaQuality int mediaQuality) {
         if (choices == null || choices.isEmpty()) return null;
         if (choices.size() == 1) return choices.get(0);
 
-        Camera.Size result = null;
-        Camera.Size maxPictureSize = Collections.max(choices, new CompareSizesByArea());
-        Camera.Size minPictureSize = Collections.min(choices, new CompareSizesByArea());
+        Size result = null;
+        Size maxPictureSize = Collections.max(choices, new CompareSizesByArea2());
+        Size minPictureSize = Collections.min(choices, new CompareSizesByArea2());
 
-        Collections.sort(choices, new CompareSizesByArea());
+        Collections.sort(choices, new CompareSizesByArea2());
 
         if (mediaQuality == AnncaConfiguration.MEDIA_QUALITY_HIGHEST) {
             result = maxPictureSize;
@@ -184,32 +182,32 @@ public final class CameraHelper {
     }
 
     @SuppressWarnings("deprecation")
-    public static Camera.Size getOptimalPreviewSize(List<Camera.Size> sizes, int width, int height) {
+    public static Size getOptimalPreviewSize(List<Size> sizes, int width, int height) {
         final double ASPECT_TOLERANCE = 0.1;
         double targetRatio = (double) height / width;
 
         if (sizes == null) return null;
 
-        Camera.Size optimalSize = null;
+        Size optimalSize = null;
         double minDiff = Double.MAX_VALUE;
 
         int targetHeight = height;
 
-        for (Camera.Size size : sizes) {
-            double ratio = (double) size.width / size.height;
+        for (Size size : sizes) {
+            double ratio = (double) size.getWidth() / size.getHeight();
             if (Math.abs(ratio - targetRatio) > ASPECT_TOLERANCE) continue;
-            if (Math.abs(size.height - targetHeight) < minDiff) {
+            if (Math.abs(size.getHeight() - targetHeight) < minDiff) {
                 optimalSize = size;
-                minDiff = Math.abs(size.height - targetHeight);
+                minDiff = Math.abs(size.getHeight() - targetHeight);
             }
         }
 
         if (optimalSize == null) {
             minDiff = Double.MAX_VALUE;
-            for (Camera.Size size : sizes) {
-                if (Math.abs(size.height - targetHeight) < minDiff) {
+            for (Size size : sizes) {
+                if (Math.abs(size.getHeight() - targetHeight) < minDiff) {
                     optimalSize = size;
-                    minDiff = Math.abs(size.height - targetHeight);
+                    minDiff = Math.abs(size.getHeight() - targetHeight);
                 }
             }
         }
@@ -217,38 +215,38 @@ public final class CameraHelper {
     }
 
     @SuppressWarnings("deprecation")
-    public static Camera.Size getSizeWithClosestRatio(List<Camera.Size> sizes, int width, int height) {
+    public static Size getSizeWithClosestRatio(List<Size> sizes, int width, int height) {
 
         if (sizes == null) return null;
 
         double MIN_TOLERANCE = 100;
         double targetRatio = (double) height / width;
-        Camera.Size optimalSize = null;
+        Size optimalSize = null;
         double minDiff = Double.MAX_VALUE;
 
         int targetHeight = height;
 
-        for (Camera.Size size : sizes) {
-            if (size.width == width && size.height == height)
+        for (Size size : sizes) {
+            if (size.getWidth() == width && size.getHeight() == height)
                 return size;
 
-            double ratio = (double) size.height / size.width;
+            double ratio = (double) size.getHeight() / size.getWidth();
 
             if (Math.abs(ratio - targetRatio) < MIN_TOLERANCE) MIN_TOLERANCE = ratio;
             else continue;
 
-            if (Math.abs(size.height - targetHeight) < minDiff) {
+            if (Math.abs(size.getHeight() - targetHeight) < minDiff) {
                 optimalSize = size;
-                minDiff = Math.abs(size.height - targetHeight);
+                minDiff = Math.abs(size.getHeight() - targetHeight);
             }
         }
 
         if (optimalSize == null) {
             minDiff = Double.MAX_VALUE;
-            for (Camera.Size size : sizes) {
-                if (Math.abs(size.height - targetHeight) < minDiff) {
+            for (Size size : sizes) {
+                if (Math.abs(size.getHeight() - targetHeight) < minDiff) {
                     optimalSize = size;
-                    minDiff = Math.abs(size.height - targetHeight);
+                    minDiff = Math.abs(size.getHeight() - targetHeight);
                 }
             }
         }
@@ -351,7 +349,7 @@ public final class CameraHelper {
         }
     }
 
-    public static double calculateApproximateVideoSize(CamcorderProfile camcorderProfile, int seconds) {
+    private static double calculateApproximateVideoSize(CamcorderProfile camcorderProfile, int seconds) {
         return ((camcorderProfile.videoBitRate / (float) 1 + camcorderProfile.audioBitRate / (float) 1) * seconds) / (float) 8;
     }
 
@@ -359,7 +357,7 @@ public final class CameraHelper {
         return 8 * maxFileSize / (camcorderProfile.videoBitRate + camcorderProfile.audioBitRate);
     }
 
-    public static long calculateMinimumRequiredBitRate(CamcorderProfile camcorderProfile, long maxFileSize, int seconds) {
+    private static long calculateMinimumRequiredBitRate(CamcorderProfile camcorderProfile, long maxFileSize, int seconds) {
         return 8 * maxFileSize / seconds - camcorderProfile.audioBitRate;
     }
 
@@ -461,17 +459,6 @@ public final class CameraHelper {
             // We cast here to ensure the multiplications won't overflow
             return Long.signum((long) lhs.getWidth() * lhs.getHeight() -
                     (long) rhs.getWidth() * rhs.getHeight());
-        }
-
-    }
-
-    @SuppressWarnings("deprecation")
-    public static class CompareSizesByArea implements Comparator<Camera.Size> {
-        @Override
-        public int compare(Camera.Size lhs, Camera.Size rhs) {
-            // We cast here to ensure the multiplications won't overflow
-            return Long.signum((long) lhs.width * lhs.height -
-                    (long) rhs.width * rhs.height);
         }
 
     }

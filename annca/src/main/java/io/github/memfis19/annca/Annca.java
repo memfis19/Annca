@@ -21,7 +21,7 @@ public class Annca {
     /***
      * Creates Annca instance with default configuration set to photo with medium quality.
      *
-     * @param activity    - from which request was invoked
+     * @param activity    - fromList which request was invoked
      * @param requestCode - request code which will return in onActivityForResult
      */
     public Annca(Activity activity, @IntRange(from = 0) int requestCode) {

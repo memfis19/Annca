@@ -6,11 +6,15 @@ import android.graphics.PorterDuff;
 import android.graphics.drawable.Drawable;
 import android.os.Build;
 import android.support.annotation.ColorInt;
+import android.support.annotation.IntDef;
 import android.support.annotation.NonNull;
 import android.support.v4.content.ContextCompat;
 import android.util.AttributeSet;
 import android.view.View;
 import android.widget.ImageButton;
+
+import java.lang.annotation.Retention;
+import java.lang.annotation.RetentionPolicy;
 
 import io.github.memfis19.annca.R;
 
@@ -20,7 +24,9 @@ import io.github.memfis19.annca.R;
  */
 public class FlashSwitchView extends ImageButton {
 
-    private FlashMode currentMode = FlashMode.FLASH_AUTO;
+    @FlashMode
+    private int currentMode = FLASH_AUTO;
+
     private FlashModeSwitchListener switchListener;
     private Drawable flashOnDrawable;
     private Drawable flashOffDrawable;
@@ -28,12 +34,17 @@ public class FlashSwitchView extends ImageButton {
 
     private int tintColor = Color.WHITE;
 
-    public enum FlashMode {
-        FLASH_ON, FLASH_OFF, FLASH_AUTO
+    public static final int FLASH_ON = 0;
+    public static final int FLASH_OFF = 1;
+    public static final int FLASH_AUTO = 2;
+
+    @IntDef({FLASH_ON, FLASH_OFF, FLASH_AUTO})
+    @Retention(RetentionPolicy.SOURCE)
+    public @interface FlashMode {
     }
 
     public interface FlashModeSwitchListener {
-        void onFlashModeChanged(FlashMode mode);
+        void onFlashModeChanged(@FlashMode int mode);
     }
 
     public FlashSwitchView(@NonNull Context context) {
@@ -55,9 +66,9 @@ public class FlashSwitchView extends ImageButton {
     }
 
     private void setIcon() {
-        if (FlashMode.FLASH_OFF == currentMode) {
+        if (FLASH_OFF == currentMode) {
             setImageDrawable(flashOffDrawable);
-        } else if (FlashMode.FLASH_ON == currentMode) {
+        } else if (FLASH_ON == currentMode) {
             setImageDrawable(flashOnDrawable);
         } else setImageDrawable(flashAutoDrawable);
 
@@ -70,12 +81,13 @@ public class FlashSwitchView extends ImageButton {
         flashAutoDrawable.setColorFilter(tintColor, PorterDuff.Mode.MULTIPLY);
     }
 
-    public void setFlashMode(@NonNull FlashMode mode) {
+    public void setFlashMode(@FlashMode int mode) {
         this.currentMode = mode;
         setIcon();
     }
 
-    public FlashMode getCurrentFlasMode() {
+    @FlashMode
+    public int getCurrentFlasMode() {
         return currentMode;
     }
 
@@ -99,12 +111,12 @@ public class FlashSwitchView extends ImageButton {
 
         @Override
         public void onClick(View v) {
-            if (FlashMode.FLASH_AUTO == currentMode) {
-                currentMode = FlashMode.FLASH_OFF;
-            } else if (FlashMode.FLASH_OFF == currentMode) {
-                currentMode = FlashMode.FLASH_ON;
-            } else if (FlashMode.FLASH_ON == currentMode) {
-                currentMode = FlashMode.FLASH_AUTO;
+            if (FLASH_AUTO == currentMode) {
+                currentMode = FLASH_OFF;
+            } else if (FLASH_OFF == currentMode) {
+                currentMode = FLASH_ON;
+            } else if (FLASH_ON == currentMode) {
+                currentMode = FLASH_AUTO;
             }
             setIcon();
             if (switchListener != null) {
