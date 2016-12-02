@@ -57,14 +57,13 @@ in this example you request video capturing which is limited by file size for 5M
 
 ## How to add to your project?
 ```
-compile 'io.github.memfis19:annca:0.2.1'
+compile 'io.github.memfis19:annca:0.3.0'
 ```
 ## Know issue
 Library has not release yet, so it contains some issues.
 
 ## Roadmap
 -Improve determinig camera quality settings;</br>
--Improve Camera customizing possibilities;</br>
 -Extend annca configuration settings.
 
 ## Bugs and Feedback
