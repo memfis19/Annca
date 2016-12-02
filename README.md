@@ -64,11 +64,11 @@ By customizing I mean change all avaliable camera controls(not camera preview) t
 #### Short summary:
 -Extend your activity from ```BaseAnncaActivity```;
 ##### -Declare it in the manifest only in Portrait mode.
--Override all methods;
--For method ```createCameraController``` use ```Camera1Controller``` or ```Camera2Controller``` respectively;
--If you want to rotate your views do it inside ```onScreenRotation(int degrees)``` method;
--For setting your camera contol layout use method ```getUserContentView()```;
--If you pass some parameters to your camera via bundle please use method ```onProcessBundle(Bundle savedInstanceState)``` which will be called before ```getUserContentView()```;
+-Override all methods;</br>
+-For method ```createCameraController``` use ```Camera1Controller``` or ```Camera2Controller``` respectively;</br>
+-If you want to rotate your views do it inside ```onScreenRotation(int degrees)``` method;</br>
+-For setting your camera contol layout use method ```getUserContentView()```;</br>
+-If you pass some parameters to your camera via bundle please use method ```onProcessBundle(Bundle savedInstanceState)``` which will be called before ```getUserContentView()```;</br>
 -In case you need to retrieve some data from camera controller or manager use in or after method ```onCameraControllerReady()``` was called.
 
 ## Know issue
