@@ -59,12 +59,25 @@ in this example you request video capturing which is limited by file size for 5M
 ```
 compile 'io.github.memfis19:annca:0.3.0'
 ```
+## How to customize camera?
+By customizing I mean change all avaliable camera controls(not camera preview) for to take photos, video recording, quility settings and more in future. To be able to customize camera view you should create activity and extend in via ```AnncaCameraActivity<T>```, where ```T``` is camera id type (due to that in camera 1 api camera ids represent as int values and in camera 2 api as string values). You should implement all requested methods. For more details please look at ```BaseAnncaActivity``` at library project. In future I will provide more detailed instructions how to it, but anyway it is quite easy task. In case if you gave some troubles, please use <a href="https://github.com/memfis19/Annca/issues">GitHub Issues</a>.
+##### Short summary:
+-Extend your activity from ```BaseAnncaActivity```;
+###### -Declare it in the manifest only in Portrait mode.
+-Override all methods;
+-For method ```createCameraController``` use ```Camera1Controller``` or ```Camera2Controller``` respectively;
+-If you want to rotate your views do it inside ```onScreenRotation(int degrees)``` method;
+-For setting your camera contol layout use method ```getUserContentView()```;
+-If you pass some parameters to your camera via bundle please use method ```onProcessBundle(Bundle savedInstanceState)``` which will be called before ```getUserContentView()```;
+-In case you need to retrieve some data from camera controller or manager use in or after method ```onCameraControllerReady()``` was called.
+
 ## Know issue
 Library has not release yet, so it contains some issues.
 
 ## Roadmap
 -Improve determinig camera quality settings;</br>
--Extend annca configuration settings.
+-Extend annca configuration settings;</br>
+-Add flash support;</br>
 
 ## Bugs and Feedback
 For bugs, feature requests, and discussion please use <a href="https://github.com/memfis19/Annca/issues">GitHub Issues</a>.
