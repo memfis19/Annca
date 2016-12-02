@@ -28,7 +28,7 @@ public class VideoQualityOption implements CharSequence {
         } else {
             title = String.valueOf(camcorderProfile.videoFrameWidth)
                     + " x " + String.valueOf(camcorderProfile.videoFrameHeight)
-                    + ", (" + (minutes > 10 ? minutes : ("0" + minutes)) + ":" + (seconds > 10 ? seconds : ("0" + seconds)) + " min)";
+                    + (videoDuration <= 0 ? "" : ", (" + (minutes > 10 ? minutes : ("0" + minutes)) + ":" + (seconds > 10 ? seconds : ("0" + seconds)) + " min)");
         }
     }
 

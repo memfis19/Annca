@@ -13,6 +13,8 @@ import android.view.WindowManager;
 
 import io.github.memfis19.annca.R;
 import io.github.memfis19.annca.internal.configuration.AnncaConfiguration;
+import io.github.memfis19.annca.internal.ui.model.PhotoQualityOption;
+import io.github.memfis19.annca.internal.ui.model.VideoQualityOption;
 import io.github.memfis19.annca.internal.ui.preview.PreviewActivity;
 import io.github.memfis19.annca.internal.ui.view.CameraControlPanel;
 import io.github.memfis19.annca.internal.ui.view.CameraSwitchView;
@@ -48,6 +50,11 @@ public abstract class BaseAnncaActivity<CameraId> extends AnncaCameraActivity<Ca
     protected int mediaAction = AnncaConfiguration.MEDIA_ACTION_UNSPECIFIED;
     @AnncaConfiguration.MediaQuality
     protected int mediaQuality = AnncaConfiguration.MEDIA_QUALITY_MEDIUM;
+    @AnncaConfiguration.MediaQuality
+    protected int passedMediaQuality = AnncaConfiguration.MEDIA_QUALITY_MEDIUM;
+
+    protected CharSequence[] videoQualities;
+    protected CharSequence[] photoQualities;
 
     protected int videoDuration = -1;
     protected long videoFileSize = -1;
@@ -74,6 +81,14 @@ public abstract class BaseAnncaActivity<CameraId> extends AnncaCameraActivity<Ca
         extractConfiguration(getIntent().getExtras());
         currentMediaActionState = mediaAction == AnncaConfiguration.MEDIA_ACTION_VIDEO ?
                 MediaActionSwitchView.ACTION_VIDEO : MediaActionSwitchView.ACTION_PHOTO;
+    }
+
+    @Override
+    protected void onCameraControllerReady() {
+        super.onCameraControllerReady();
+
+        videoQualities = getVideoQualityOptions();
+        photoQualities = getPhotoQualityOptions();
     }
 
     @Override
@@ -135,6 +150,7 @@ public abstract class BaseAnncaActivity<CameraId> extends AnncaCameraActivity<Ca
                         mediaQuality = AnncaConfiguration.MEDIA_QUALITY_MEDIUM;
                         break;
                 }
+                passedMediaQuality = mediaQuality;
             }
 
             if (bundle.containsKey(AnncaConfiguration.Arguments.VIDEO_DURATION))
@@ -171,14 +187,14 @@ public abstract class BaseAnncaActivity<CameraId> extends AnncaCameraActivity<Ca
         AlertDialog.Builder builder = new AlertDialog.Builder(this);
 
         if (currentMediaActionState == MediaActionSwitchView.ACTION_VIDEO) {
-            builder.setSingleChoiceItems(getVideoQualityOptions(), getVideoOptionCheckedIndex(), getVideoOptionSelectedListener());
+            builder.setSingleChoiceItems(videoQualities, getVideoOptionCheckedIndex(), getVideoOptionSelectedListener());
             if (getVideoFileSize() > 0)
                 builder.setTitle(String.format(getString(R.string.settings_video_quality_title),
                         "(Max " + String.valueOf(getVideoFileSize() / (1024 * 1024) + " MB)")));
             else
                 builder.setTitle(String.format(getString(R.string.settings_video_quality_title), ""));
         } else {
-            builder.setSingleChoiceItems(getPhotoQualityOptions(), getPhotoOptionCheckedIndex(), getPhotoOptionSelectedListener());
+            builder.setSingleChoiceItems(photoQualities, getPhotoOptionCheckedIndex(), getPhotoOptionSelectedListener());
             builder.setTitle(R.string.settings_photo_quality_title);
         }
 
@@ -369,11 +385,42 @@ public abstract class BaseAnncaActivity<CameraId> extends AnncaCameraActivity<Ca
 
     protected abstract CharSequence[] getPhotoQualityOptions();
 
-    protected abstract int getVideoOptionCheckedIndex();
+    protected int getVideoOptionCheckedIndex() {
+        int checkedIndex = -1;
+        if (mediaQuality == AnncaConfiguration.MEDIA_QUALITY_AUTO) checkedIndex = 0;
+        else if (mediaQuality == AnncaConfiguration.MEDIA_QUALITY_HIGH) checkedIndex = 1;
+        else if (mediaQuality == AnncaConfiguration.MEDIA_QUALITY_MEDIUM) checkedIndex = 2;
+        else if (mediaQuality == AnncaConfiguration.MEDIA_QUALITY_LOW) checkedIndex = 3;
 
-    protected abstract int getPhotoOptionCheckedIndex();
+        if (passedMediaQuality != AnncaConfiguration.MEDIA_QUALITY_AUTO) checkedIndex--;
 
-    protected abstract DialogInterface.OnClickListener getVideoOptionSelectedListener();
+        return checkedIndex;
+    }
 
-    protected abstract DialogInterface.OnClickListener getPhotoOptionSelectedListener();
+    protected int getPhotoOptionCheckedIndex() {
+        int checkedIndex = -1;
+        if (mediaQuality == AnncaConfiguration.MEDIA_QUALITY_HIGHEST) checkedIndex = 0;
+        else if (mediaQuality == AnncaConfiguration.MEDIA_QUALITY_HIGH) checkedIndex = 1;
+        else if (mediaQuality == AnncaConfiguration.MEDIA_QUALITY_MEDIUM) checkedIndex = 2;
+        else if (mediaQuality == AnncaConfiguration.MEDIA_QUALITY_LOWEST) checkedIndex = 3;
+        return checkedIndex;
+    }
+
+    protected DialogInterface.OnClickListener getVideoOptionSelectedListener() {
+        return new DialogInterface.OnClickListener() {
+            @Override
+            public void onClick(DialogInterface dialogInterface, int index) {
+                newQuality = ((VideoQualityOption) videoQualities[index]).getMediaQuality();
+            }
+        };
+    }
+
+    protected DialogInterface.OnClickListener getPhotoOptionSelectedListener() {
+        return new DialogInterface.OnClickListener() {
+            @Override
+            public void onClick(DialogInterface dialogInterface, int index) {
+                newQuality = ((PhotoQualityOption) photoQualities[index]).getMediaQuality();
+            }
+        };
+    }
 }
