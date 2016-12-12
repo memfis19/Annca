@@ -9,15 +9,6 @@ android:
     - extra-android-support
     - extra-android-m2repository
     - extra-google-m2repository
-
-    # Additional components
-    #- extra-google-google_play_services
-    #- addon-google_apis-google-19
-
-    # Specify at least one system image, if you need to run emulator(s) during your tests
-    #- sys-img-armeabi-v7a-android-19
-    #- sys-img-x86-android-17
-
   licenses:
     - '.+'
 
@@ -27,3 +18,5 @@ cache:
     directories:
         - $HOME/.gradle/caches/
         - $HOME/.gradle/wrapper/
+script:
+    - chmod +x ./gradlew
