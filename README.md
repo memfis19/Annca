@@ -1,6 +1,6 @@
 # Annca
 
-[ ![Download](https://api.bintray.com/packages/m-e-m-f-i-s/io.github.memfis19/annca/images/download.svg) ](https://bintray.com/m-e-m-f-i-s/io.github.memfis19/annca/_latestVersion)[![Android Arsenal](https://img.shields.io/badge/Android%20Arsenal-Annca-brightgreen.svg?style=flat)](http://android-arsenal.com/details/1/4814)
+[ ![Download](https://api.bintray.com/packages/m-e-m-f-i-s/io.github.memfis19/annca/images/download.svg) ](https://bintray.com/m-e-m-f-i-s/io.github.memfis19/annca/_latestVersion)[![Android Arsenal](https://img.shields.io/badge/Android%20Arsenal-Annca-brightgreen.svg?style=flat)](http://android-arsenal.com/details/1/4814)  [![Build Status](https://travis-ci.org/memfis19/Annca.svg?branch=master)](https://travis-ci.org/memfis19/Annca)
 
 Android solution to simplify work with different camera apis. Include video and photo capturing features with possibility to select quality for appropriate media action etc. In current solution were used some approaches from <a href="https://github.com/google/grafika">Grafika project</a> and <a href="https://github.com/googlesamples/android-Camera2Video">Google camera samples</a>.
 
