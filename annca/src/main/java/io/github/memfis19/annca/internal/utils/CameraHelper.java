@@ -266,8 +266,8 @@ public final class CameraHelper {
         int targetHeight = height;
 
         for (Size size : sizes) {
-            if (size.getWidth() == width && size.getHeight() == height)
-                return size;
+//            if (size.getWidth() == width && size.getHeight() == height)
+//                return size;
             double ratio = (double) size.getWidth() / size.getHeight();
             if (Math.abs(ratio - targetRatio) > ASPECT_TOLERANCE) continue;
             if (Math.abs(size.getHeight() - targetHeight) < minDiff) {
@@ -301,8 +301,8 @@ public final class CameraHelper {
         int targetHeight = height;
 
         for (Size size : sizes) {
-            if (size.getWidth() == width && size.getHeight() == height)
-                return size;
+//            if (size.getWidth() == width && size.getHeight() == height)
+//                return size;
 
             double ratio = (double) size.getHeight() / size.getWidth();
 
