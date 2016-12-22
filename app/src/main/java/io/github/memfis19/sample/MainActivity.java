@@ -79,11 +79,16 @@ public class MainActivity extends AppCompatActivity {
                 case R.id.universalConfiguration:
                     AnncaConfiguration.Builder universal = new AnncaConfiguration.Builder(activity, CAPTURE_MEDIA);
                     universal.setMediaAction(AnncaConfiguration.MEDIA_ACTION_UNSPECIFIED);
+                    universal.setFlashMode(AnncaConfiguration.FLASH_MODE_ON);
                     new Annca(universal.build()).launchCamera();
+                    break;
+                case R.id.dialogDemo:
+                    DemoDialogFragment.getInstance().show(getSupportFragmentManager(), "DemoDialogFragment");
                     break;
             }
         }
     };
+
 
     protected final void askForPermissions(String[] permissions, int requestCode) {
         List<String> permissionsToRequest = new ArrayList<>();
@@ -110,6 +115,7 @@ public class MainActivity extends AppCompatActivity {
         findViewById(R.id.videoConfiguration).setOnClickListener(onClickListener);
         findViewById(R.id.videoLimitedConfiguration).setOnClickListener(onClickListener);
         findViewById(R.id.universalConfiguration).setOnClickListener(onClickListener);
+        findViewById(R.id.dialogDemo).setOnClickListener(onClickListener);
     }
 
     @Override

@@ -111,6 +111,11 @@ public class Camera1Manager extends BaseCameraManager<Integer, SurfaceHolder.Cal
     }
 
     @Override
+    public void setFlashMode(@AnncaConfiguration.FlashMode int flashMode) {
+        setFlashMode(camera, camera.getParameters(), flashMode);
+    }
+
+    @Override
     public void takePhoto(File photoFile, CameraPhotoListener cameraPhotoListener) {
         this.outputPath = photoFile;
         this.photoListener = cameraPhotoListener;
@@ -325,6 +330,7 @@ public class Camera1Manager extends BaseCameraManager<Integer, SurfaceHolder.Cal
 
             Camera.Parameters parameters = camera.getParameters();
             setAutoFocus(camera, parameters);
+            setFlashMode(configurationProvider.getFlashMode());
 
             if (configurationProvider.getMediaAction() == AnncaConfiguration.MEDIA_ACTION_PHOTO
                     || configurationProvider.getMediaAction() == AnncaConfiguration.MEDIA_ACTION_UNSPECIFIED)
@@ -407,6 +413,27 @@ public class Camera1Manager extends BaseCameraManager<Integer, SurfaceHolder.Cal
                 parameters.setFocusMode(Camera.Parameters.FOCUS_MODE_AUTO);
                 camera.setParameters(parameters);
             }
+        } catch (Exception ignore) {
+        }
+    }
+
+    private void setFlashMode(Camera camera, Camera.Parameters parameters, @AnncaConfiguration.FlashMode int flashMode) {
+        try {
+            switch (flashMode) {
+                case AnncaConfiguration.FLASH_MODE_AUTO:
+                    parameters.setFlashMode(Camera.Parameters.FLASH_MODE_AUTO);
+                    break;
+                case AnncaConfiguration.FLASH_MODE_ON:
+                    parameters.setFlashMode(Camera.Parameters.FLASH_MODE_ON);
+                    break;
+                case AnncaConfiguration.FLASH_MODE_OFF:
+                    parameters.setFlashMode(Camera.Parameters.FLASH_MODE_OFF);
+                    break;
+                default:
+                    parameters.setFlashMode(Camera.Parameters.FLASH_MODE_AUTO);
+                    break;
+            }
+            camera.setParameters(parameters);
         } catch (Exception ignore) {
         }
     }

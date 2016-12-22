@@ -94,6 +94,11 @@ public class Camera1Controller implements io.github.memfis19.annca.internal.cont
     }
 
     @Override
+    public void setFlashMode(@AnncaConfiguration.FlashMode int flashMode) {
+        cameraManager.setFlashMode(flashMode);
+    }
+
+    @Override
     public void switchQuality() {
         cameraManager.closeCamera(this);
     }

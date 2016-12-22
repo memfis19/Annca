@@ -32,6 +32,8 @@ public interface CameraController<CameraId> {
 
     void switchQuality();
 
+    void setFlashMode(@AnncaConfiguration.FlashMode int flashMode);
+
     int getNumberOfCameras();
 
     @AnncaConfiguration.MediaAction

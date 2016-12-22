@@ -23,6 +23,8 @@ public interface CameraManager<CameraId, SurfaceListener> {
 
     void closeCamera(CameraCloseListener<CameraId> cameraCloseListener);
 
+    void setFlashMode(@AnncaConfiguration.FlashMode int flashMode);
+
     void takePhoto(File photoFile, CameraPhotoListener cameraPhotoListener);
 
     void startVideoRecord(File videoFile, CameraVideoListener cameraVideoListener);

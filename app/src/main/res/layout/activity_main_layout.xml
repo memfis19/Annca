@@ -39,4 +39,11 @@
         android:layout_margin="15dp"
         android:text="@string/universal_configuration" />
 
+    <Button
+        android:id="@+id/dialogDemo"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_margin="15dp"
+        android:text="@string/using_within_dialog" />
+
 </LinearLayout>

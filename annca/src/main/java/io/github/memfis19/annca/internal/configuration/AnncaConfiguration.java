@@ -4,6 +4,7 @@ import android.app.Activity;
 import android.support.annotation.IntDef;
 import android.support.annotation.IntRange;
 import android.support.annotation.NonNull;
+import android.support.v4.app.Fragment;
 
 import java.lang.annotation.Retention;
 import java.lang.annotation.RetentionPolicy;
@@ -41,6 +42,9 @@ public final class AnncaConfiguration {
     public static final int ORIENTATION_PORTRAIT = 0x111;
     public static final int ORIENTATION_LANDSCAPE = 0x222;
 
+    public static final int FLASH_MODE_ON = 1;
+    public static final int FLASH_MODE_OFF = 2;
+    public static final int FLASH_MODE_AUTO = 3;
 
     public interface Arguments {
         String REQUEST_CODE = "io.memfis19.annca.request_code";
@@ -49,6 +53,7 @@ public final class AnncaConfiguration {
         String VIDEO_DURATION = "io.memfis19.annca.video_duration";
         String MINIMUM_VIDEO_DURATION = "io.memfis19.annca.minimum.video_duration";
         String VIDEO_FILE_SIZE = "io.memfis19.annca.camera_video_file_size";
+        String FLASH_MODE = "io.memfis19.annca.camera_flash_mode";
         String FILE_PATH = "io.memfis19.annca.camera_video_file_path";
     }
 
@@ -60,6 +65,11 @@ public final class AnncaConfiguration {
     @IntDef({MEDIA_ACTION_VIDEO, MEDIA_ACTION_PHOTO, MEDIA_ACTION_UNSPECIFIED})
     @Retention(RetentionPolicy.SOURCE)
     public @interface MediaAction {
+    }
+
+    @IntDef({FLASH_MODE_ON, FLASH_MODE_OFF, FLASH_MODE_AUTO})
+    @Retention(RetentionPolicy.SOURCE)
+    public @interface FlashMode {
     }
 
     @IntDef({CAMERA_FACE_FRONT, CAMERA_FACE_REAR})
@@ -83,6 +93,7 @@ public final class AnncaConfiguration {
     }
 
     private Activity activity = null;
+    private Fragment fragment = null;
 
     private int requestCode = -1;
 
@@ -101,9 +112,16 @@ public final class AnncaConfiguration {
 
     private int minimumVideoDuration = -1;
 
+    @FlashMode
+    private int flashMode = FLASH_MODE_AUTO;
 
     private AnncaConfiguration(Activity activity, int requestCode) {
         this.activity = activity;
+        this.requestCode = requestCode;
+    }
+
+    private AnncaConfiguration(@NonNull Fragment fragment, int requestCode) {
+        this.fragment = fragment;
         this.requestCode = requestCode;
     }
 
@@ -114,6 +132,10 @@ public final class AnncaConfiguration {
 
         public Builder(@NonNull Activity activity, @IntRange(from = 0) int requestCode) {
             anncaConfiguration = new AnncaConfiguration(activity, requestCode);
+        }
+
+        public Builder(@NonNull Fragment fragment, @IntRange(from = 0) int requestCode) {
+            anncaConfiguration = new AnncaConfiguration(fragment, requestCode);
         }
 
         public Builder setMediaAction(@MediaAction int mediaAction) {
@@ -154,6 +176,11 @@ public final class AnncaConfiguration {
             return this;
         }
 
+        public Builder setFlashMode(@FlashMode int flashMode) {
+            anncaConfiguration.flashMode = flashMode;
+            return this;
+        }
+
         public AnncaConfiguration build() throws IllegalArgumentException {
             if (anncaConfiguration.requestCode < 0)
                 throw new IllegalArgumentException("Wrong request code value. Please set the value > 0.");
@@ -168,6 +195,10 @@ public final class AnncaConfiguration {
 
     public Activity getActivity() {
         return activity;
+    }
+
+    public Fragment getFragment() {
+        return fragment;
     }
 
     public int getRequestCode() {
@@ -196,5 +227,9 @@ public final class AnncaConfiguration {
 
     public int getMinimumVideoDuration() {
         return minimumVideoDuration;
+    }
+
+    public int getFlashMode() {
+        return flashMode;
     }
 }

@@ -53,6 +53,9 @@ public abstract class BaseAnncaActivity<CameraId> extends AnncaCameraActivity<Ca
     @AnncaConfiguration.MediaQuality
     protected int passedMediaQuality = AnncaConfiguration.MEDIA_QUALITY_MEDIUM;
 
+    @AnncaConfiguration.FlashMode
+    protected int flashMode = AnncaConfiguration.FLASH_MODE_AUTO;
+
     protected CharSequence[] videoQualities;
     protected CharSequence[] photoQualities;
 
@@ -161,6 +164,22 @@ public abstract class BaseAnncaActivity<CameraId> extends AnncaCameraActivity<Ca
 
             if (bundle.containsKey(AnncaConfiguration.Arguments.MINIMUM_VIDEO_DURATION))
                 minimumVideoDuration = bundle.getInt(AnncaConfiguration.Arguments.MINIMUM_VIDEO_DURATION);
+
+            if (bundle.containsKey(AnncaConfiguration.Arguments.FLASH_MODE))
+                switch (bundle.getInt(AnncaConfiguration.Arguments.FLASH_MODE)) {
+                    case AnncaConfiguration.FLASH_MODE_AUTO:
+                        flashMode = AnncaConfiguration.FLASH_MODE_AUTO;
+                        break;
+                    case AnncaConfiguration.FLASH_MODE_ON:
+                        flashMode = AnncaConfiguration.FLASH_MODE_ON;
+                        break;
+                    case AnncaConfiguration.FLASH_MODE_OFF:
+                        flashMode = AnncaConfiguration.FLASH_MODE_OFF;
+                        break;
+                    default:
+                        flashMode = AnncaConfiguration.FLASH_MODE_AUTO;
+                        break;
+                }
         }
     }
 
@@ -170,6 +189,19 @@ public abstract class BaseAnncaActivity<CameraId> extends AnncaCameraActivity<Ca
 
         if (cameraControlPanel != null) {
             cameraControlPanel.setup(getMediaAction());
+
+            switch (flashMode) {
+                case AnncaConfiguration.FLASH_MODE_AUTO:
+                    cameraControlPanel.setFlasMode(FlashSwitchView.FLASH_AUTO);
+                    break;
+                case AnncaConfiguration.FLASH_MODE_ON:
+                    cameraControlPanel.setFlasMode(FlashSwitchView.FLASH_ON);
+                    break;
+                case AnncaConfiguration.FLASH_MODE_OFF:
+                    cameraControlPanel.setFlasMode(FlashSwitchView.FLASH_OFF);
+                    break;
+            }
+
             cameraControlPanel.setRecordButtonListener(this);
             cameraControlPanel.setFlashModeSwitchListener(this);
             cameraControlPanel.setOnMediaActionStateChangeListener(this);
@@ -240,7 +272,20 @@ public abstract class BaseAnncaActivity<CameraId> extends AnncaCameraActivity<Ca
 
     @Override
     public void onFlashModeChanged(@FlashSwitchView.FlashMode int mode) {
-
+        switch (mode) {
+            case FlashSwitchView.FLASH_AUTO:
+                flashMode = AnncaConfiguration.FLASH_MODE_AUTO;
+                getCameraController().setFlashMode(AnncaConfiguration.FLASH_MODE_AUTO);
+                break;
+            case FlashSwitchView.FLASH_ON:
+                flashMode = AnncaConfiguration.FLASH_MODE_ON;
+                getCameraController().setFlashMode(AnncaConfiguration.FLASH_MODE_ON);
+                break;
+            case FlashSwitchView.FLASH_OFF:
+                flashMode = AnncaConfiguration.FLASH_MODE_OFF;
+                getCameraController().setFlashMode(AnncaConfiguration.FLASH_MODE_OFF);
+                break;
+        }
     }
 
     @Override
@@ -299,6 +344,11 @@ public abstract class BaseAnncaActivity<CameraId> extends AnncaCameraActivity<Ca
     @Override
     public int getMinimumVideoDuration() {
         return minimumVideoDuration / 1000;
+    }
+
+    @Override
+    public int getFlashMode() {
+        return flashMode;
     }
 
     @Override

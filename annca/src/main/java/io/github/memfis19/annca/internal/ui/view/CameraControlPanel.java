@@ -1,6 +1,7 @@
 package io.github.memfis19.annca.internal.ui.view;
 
 import android.content.Context;
+import android.content.pm.PackageManager;
 import android.graphics.Color;
 import android.os.Build;
 import android.os.FileObserver;
@@ -72,8 +73,8 @@ public class CameraControlPanel extends RelativeLayout
     }
 
     private void init() {
-//        hasFlash = context.getPackageManager().hasSystemFeature(PackageManager.FEATURE_CAMERA_FLASH);
-        hasFlash = false;
+        hasFlash = context.getPackageManager().hasSystemFeature(PackageManager.FEATURE_CAMERA_FLASH);
+//        hasFlash = false;
 
         LayoutInflater.from(context).inflate(R.layout.camera_control_panel_layout, this);
         setBackgroundColor(Color.TRANSPARENT);
@@ -133,6 +134,10 @@ public class CameraControlPanel extends RelativeLayout
         if (AnncaConfiguration.MEDIA_ACTION_UNSPECIFIED != mediaAction) {
             mediaActionSwitchView.setVisibility(GONE);
         } else mediaActionSwitchView.setVisibility(VISIBLE);
+    }
+
+    public void setFlasMode(@FlashSwitchView.FlashMode int flashMode) {
+        flashSwitchView.setFlashMode(flashMode);
     }
 
     public void setMediaFilePath(final File mediaFile) {
@@ -284,13 +289,13 @@ public class CameraControlPanel extends RelativeLayout
     }
 
     abstract class TimerTaskBase {
-        protected Handler handler = new Handler(Looper.getMainLooper());
-        protected TextView timerView;
-        protected boolean alive = false;
-        protected long recordingTimeSeconds = 0;
-        protected long recordingTimeMinutes = 0;
+        Handler handler = new Handler(Looper.getMainLooper());
+        TextView timerView;
+        boolean alive = false;
+        long recordingTimeSeconds = 0;
+        long recordingTimeMinutes = 0;
 
-        public TimerTaskBase(TextView timerView) {
+        TimerTaskBase(TextView timerView) {
             this.timerView = timerView;
         }
 

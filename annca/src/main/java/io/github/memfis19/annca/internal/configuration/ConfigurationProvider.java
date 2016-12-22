@@ -23,4 +23,7 @@ public interface ConfigurationProvider {
     int getDegrees();
 
     int getMinimumVideoDuration();
+
+    @AnncaConfiguration.FlashMode
+    int getFlashMode();
 }

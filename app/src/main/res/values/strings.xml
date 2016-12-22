@@ -7,5 +7,6 @@
     <string name="video_configuration">Video (High quality)</string>
     <string name="video_limited_configuration">Video with limitation (By size, quality auto)</string>
     <string name="universal_configuration">Universal (Able to switch video/photo)</string>
+    <string name="using_within_dialog">Using within dialog</string>
 
 </resources>
