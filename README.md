@@ -1,6 +1,6 @@
 # Annca
 
-[ ![Download](https://api.bintray.com/packages/m-e-m-f-i-s/io.github.memfis19/annca/images/download.svg) ](https://bintray.com/m-e-m-f-i-s/io.github.memfis19/annca/_latestVersion)[![Android Arsenal](https://img.shields.io/badge/Android%20Arsenal-Annca-brightgreen.svg?style=flat)](http://android-arsenal.com/details/1/4814)  [![Build Status](https://travis-ci.org/memfis19/Annca.svg?branch=master)](https://travis-ci.org/memfis19/Annca)
+[ ![Download](https://api.bintray.com/packages/m-e-m-f-i-s/io.github.memfis19/annca/images/download.svg) ](https://bintray.com/m-e-m-f-i-s/io.github.memfis19/annca/_latestVersion)[![Android Arsenal](https://img.shields.io/badge/Android%20Arsenal-Annca-brightgreen.svg?style=flat)](http://android-arsenal.com/details/1/4814)  [![Build Status](https://travis-ci.org/memfis19/Annca.svg?branch=master)](https://travis-ci.org/memfis19/Annca) [![API](https://img.shields.io/badge/API-10%2B-blue.svg?style=flat)](https://android-arsenal.com/api?level=10)
 
 Android solution to simplify work with different camera apis. Include video and photo capturing features with possibility to select quality for appropriate media action etc. In current solution were used some approaches from <a href="https://github.com/google/grafika">Grafika project</a> and <a href="https://github.com/googlesamples/android-Camera2Video">Google camera samples</a>.
 
@@ -60,7 +60,7 @@ in this example you request video capturing which is limited by file size for 5M
 
 ## How to add to your project?
 ```
-compile 'io.github.memfis19:annca:0.3.1'
+compile 'io.github.memfis19:annca:0.3.2'
 ```
 ## How to customize camera?
 By customizing I mean change all avaliable camera controls(not camera preview) to take photos, video recording, quality settings and more in future. To be able to customize camera view you should create activity and extend it via ```AnncaCameraActivity<T>```, where ```T``` is camera id type (due to that in camera 1 api camera ids represent as int values and in camera 2 api as string values). You should implement all requested methods. For more details please look at ```BaseAnncaActivity``` at library project. In future I will provide more detailed instructions how to do it, but anyway it is quite easy task. In case if you gave some troubles or questions, please use <a href="https://github.com/memfis19/Annca/issues">GitHub Issues</a>.
@@ -80,7 +80,6 @@ Library has not release yet, so it contains some issues.
 ## Roadmap
 -Improve determinig camera quality settings;</br>
 -Extend annca configuration settings;</br>
--Add flash support;</br>
 
 ## Bugs and Feedback
 For bugs, feature requests, and discussion please use <a href="https://github.com/memfis19/Annca/issues">GitHub Issues</a>.
