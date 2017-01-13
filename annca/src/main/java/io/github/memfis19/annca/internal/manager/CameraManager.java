@@ -6,6 +6,8 @@ import java.io.File;
 
 import io.github.memfis19.annca.internal.configuration.AnncaConfiguration;
 import io.github.memfis19.annca.internal.configuration.ConfigurationProvider;
+import io.github.memfis19.annca.internal.manager.impl.CameraHandler;
+import io.github.memfis19.annca.internal.manager.impl.ParametersHandler;
 import io.github.memfis19.annca.internal.manager.listener.CameraCloseListener;
 import io.github.memfis19.annca.internal.manager.listener.CameraOpenListener;
 import io.github.memfis19.annca.internal.manager.listener.CameraPhotoListener;
@@ -15,7 +17,7 @@ import io.github.memfis19.annca.internal.utils.Size;
 /**
  * Created by memfis on 8/14/16.
  */
-public interface CameraManager<CameraId, SurfaceListener> {
+public interface CameraManager<CameraId, SurfaceListener, CameraParameters, Camera> {
 
     void initializeCameraManager(ConfigurationProvider configurationProvider, Context context);
 
@@ -48,4 +50,8 @@ public interface CameraManager<CameraId, SurfaceListener> {
     int getFaceBackCameraOrientation();
 
     boolean isVideoRecording();
+
+    boolean handleParameters(ParametersHandler<CameraParameters> parameters);
+
+    void handleCamera(CameraHandler<Camera> cameraHandler);
 }

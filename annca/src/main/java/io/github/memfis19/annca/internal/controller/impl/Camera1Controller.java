@@ -1,5 +1,6 @@
 package io.github.memfis19.annca.internal.controller.impl;
 
+import android.hardware.Camera;
 import android.os.Bundle;
 import android.util.Log;
 import android.view.SurfaceHolder;
@@ -31,7 +32,7 @@ public class Camera1Controller implements io.github.memfis19.annca.internal.cont
 
     private Integer currentCameraId;
     private ConfigurationProvider configurationProvider;
-    private CameraManager<Integer, SurfaceHolder.Callback> cameraManager;
+    private CameraManager<Integer, SurfaceHolder.Callback, Camera.Parameters, Camera> cameraManager;
     private CameraView cameraView;
 
     private File outputFile;
@@ -129,6 +130,11 @@ public class Camera1Controller implements io.github.memfis19.annca.internal.cont
         cameraView.updateUiForMediaAction(configurationProvider.getMediaAction());
         cameraView.updateCameraPreview(previewSize, new AutoFitSurfaceView(cameraView.getActivity(), surfaceCallback));
         cameraView.updateCameraSwitcher(getNumberOfCameras());
+    }
+
+    @Override
+    public void onCameraReady() {
+        cameraView.onCameraReady();
     }
 
     @Override

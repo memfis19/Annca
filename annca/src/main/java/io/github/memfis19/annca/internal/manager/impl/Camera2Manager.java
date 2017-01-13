@@ -50,7 +50,7 @@ import io.github.memfis19.annca.internal.utils.Size;
  * Created by memfis on 8/9/16.
  */
 @TargetApi(Build.VERSION_CODES.LOLLIPOP)
-public final class Camera2Manager extends BaseCameraManager<String, TextureView.SurfaceTextureListener>
+public final class Camera2Manager extends BaseCameraManager<String, TextureView.SurfaceTextureListener, CaptureRequest.Builder, CameraDevice>
         implements ImageReader.OnImageAvailableListener, TextureView.SurfaceTextureListener {
 
     private final static String TAG = "Camera2Manager";
@@ -248,6 +248,24 @@ public final class Camera2Manager extends BaseCameraManager<String, TextureView.
                 }
             }
         });
+    }
+
+    @Override
+    public void handleCamera(CameraHandler<CameraDevice> cameraHandler) {
+        cameraHandler.handleCamera(cameraDevice);
+    }
+
+    @Override
+    public boolean handleParameters(ParametersHandler<CaptureRequest.Builder> parameters) {
+        try {
+            previewRequestBuilder = parameters.getParameters(previewRequestBuilder);
+
+            previewRequest = previewRequestBuilder.build();
+            captureSession.setRepeatingRequest(previewRequest, captureCallback, backgroundHandler);
+            return true;
+        } catch (Throwable ignore) {
+        }
+        return false;
     }
 
     @Override
@@ -593,8 +611,9 @@ public final class Camera2Manager extends BaseCameraManager<String, TextureView.
             return;
         }
         captureSession = cameraCaptureSession;
-
         setFlashModeAndBuildPreviewRequest(configurationProvider.getFlashMode());
+
+        if (cameraOpenListener != null) cameraOpenListener.onCameraReady();
     }
 
     private void closePreviewSession() {

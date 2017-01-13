@@ -1,6 +1,8 @@
 package io.github.memfis19.annca.internal.controller.impl;
 
 import android.annotation.TargetApi;
+import android.hardware.camera2.CameraDevice;
+import android.hardware.camera2.CaptureRequest;
 import android.os.Build;
 import android.os.Bundle;
 import android.util.Log;
@@ -34,7 +36,7 @@ public class Camera2Controller implements CameraController<String>,
 
     private String currentCameraId;
     private ConfigurationProvider configurationProvider;
-    private CameraManager<String, TextureView.SurfaceTextureListener> camera2Manager;
+    private CameraManager<String, TextureView.SurfaceTextureListener, CaptureRequest.Builder, CameraDevice> camera2Manager;
     private CameraView cameraView;
 
     private File outputFile;
@@ -132,6 +134,11 @@ public class Camera2Controller implements CameraController<String>,
         cameraView.updateUiForMediaAction(AnncaConfiguration.MEDIA_ACTION_UNSPECIFIED);
         cameraView.updateCameraPreview(previewSize, new AutoFitTextureView(cameraView.getActivity(), surfaceTextureListener));
         cameraView.updateCameraSwitcher(camera2Manager.getNumberOfCameras());
+    }
+
+    @Override
+    public void onCameraReady() {
+        cameraView.onCameraReady();
     }
 
     @Override

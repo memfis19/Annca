@@ -17,8 +17,8 @@ import io.github.memfis19.annca.internal.utils.Size;
 /**
  * Created by memfis on 8/14/16.
  */
-abstract class BaseCameraManager<CameraId, SurfaceListener>
-        implements io.github.memfis19.annca.internal.manager.CameraManager<CameraId, SurfaceListener>, MediaRecorder.OnInfoListener {
+abstract class BaseCameraManager<CameraId, SurfaceListener, CameraParameters, Camera>
+        implements io.github.memfis19.annca.internal.manager.CameraManager<CameraId, SurfaceListener, CameraParameters, Camera>, MediaRecorder.OnInfoListener {
 
     private static final String TAG = "BaseCameraManager";
 

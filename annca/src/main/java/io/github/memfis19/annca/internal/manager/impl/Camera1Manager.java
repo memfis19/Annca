@@ -30,7 +30,7 @@ import io.github.memfis19.annca.internal.utils.Size;
  * Created by memfis on 8/14/16.
  */
 @SuppressWarnings("deprecation")
-public class Camera1Manager extends BaseCameraManager<Integer, SurfaceHolder.Callback>
+public class Camera1Manager extends BaseCameraManager<Integer, SurfaceHolder.Callback, Camera.Parameters, Camera>
         implements SurfaceHolder.Callback, Camera.PictureCallback {
 
     private static final String TAG = "Camera1Manager";
@@ -46,6 +46,7 @@ public class Camera1Manager extends BaseCameraManager<Integer, SurfaceHolder.Cal
     private File outputPath;
     private CameraVideoListener videoListener;
     private CameraPhotoListener photoListener;
+    private CameraOpenListener<Integer, SurfaceHolder.Callback> cameraOpenListener;
 
     private Camera1Manager() {
 
@@ -60,6 +61,7 @@ public class Camera1Manager extends BaseCameraManager<Integer, SurfaceHolder.Cal
     public void openCamera(final Integer cameraId,
                            final CameraOpenListener<Integer, SurfaceHolder.Callback> cameraOpenListener) {
         this.currentCameraId = cameraId;
+        this.cameraOpenListener = cameraOpenListener;
         backgroundHandler.post(new Runnable() {
             @Override
             public void run() {
@@ -384,6 +386,7 @@ public class Camera1Manager extends BaseCameraManager<Integer, SurfaceHolder.Cal
             camera.setPreviewDisplay(surfaceHolder);
             camera.startPreview();
 
+            if (cameraOpenListener != null) cameraOpenListener.onCameraReady();
         } catch (IOException error) {
             Log.d(TAG, "Error setting camera preview: " + error.getMessage());
         } catch (Exception ignore) {
@@ -394,7 +397,9 @@ public class Camera1Manager extends BaseCameraManager<Integer, SurfaceHolder.Cal
     private void turnPhotoCameraFeaturesOn(Camera camera, Camera.Parameters parameters) {
         if (parameters.getSupportedFocusModes().contains(
                 Camera.Parameters.FOCUS_MODE_CONTINUOUS_PICTURE)) {
-            parameters.setFocusMode(Camera.Parameters.FOCUS_MODE_CONTINUOUS_PICTURE);
+            if (Build.VERSION.SDK_INT > 13)
+                parameters.setFocusMode(Camera.Parameters.FOCUS_MODE_CONTINUOUS_PICTURE);
+            else parameters.setFocusMode(Camera.Parameters.FOCUS_MODE_AUTO);
         }
         camera.setParameters(parameters);
     }
@@ -405,6 +410,21 @@ public class Camera1Manager extends BaseCameraManager<Integer, SurfaceHolder.Cal
             parameters.setFocusMode(Camera.Parameters.FOCUS_MODE_CONTINUOUS_VIDEO);
         }
         camera.setParameters(parameters);
+    }
+
+    @Override
+    public void handleCamera(CameraHandler<Camera> cameraHandler) {
+        cameraHandler.handleCamera(camera);
+    }
+
+    @Override
+    public boolean handleParameters(ParametersHandler<Camera.Parameters> parameters) {
+        try {
+            camera.setParameters(parameters.getParameters(camera.getParameters()));
+            return true;
+        } catch (Throwable ignore) {
+        }
+        return false;
     }
 
     private void setAutoFocus(Camera camera, Camera.Parameters parameters) {
