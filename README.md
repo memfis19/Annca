@@ -65,7 +65,7 @@ compile 'io.github.memfis19:annca:0.3.3'
 ## How to customize camera?
 By customizing I mean change all avaliable camera controls(not camera preview) to take photos, video recording, quality settings and more in future. To be able to customize camera view you should create activity and extend it via ```AnncaCameraActivity<T>```, where ```T``` is camera id type (due to that in camera 1 api camera ids represent as int values and in camera 2 api as string values). You should implement all requested methods. For more details please look at ```BaseAnncaActivity``` at library project. In future I will provide more detailed instructions how to do it, but anyway it is quite easy task. In case if you gave some troubles or questions, please use <a href="https://github.com/memfis19/Annca/issues">GitHub Issues</a>.
 #### Short summary:
--Extend your activity from ```BaseAnncaActivity```;
+-Extend your activity from ```AnncaCameraActivity<T>```;
 ##### -Declare it in the manifest only in Portrait mode.
 -Override all methods;</br>
 -For method ```createCameraController``` use ```Camera1Controller``` or ```Camera2Controller``` respectively;</br>
