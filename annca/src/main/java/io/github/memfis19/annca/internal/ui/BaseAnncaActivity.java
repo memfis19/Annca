@@ -184,7 +184,7 @@ public abstract class BaseAnncaActivity<CameraId> extends AnncaCameraActivity<Ca
     }
 
     @Override
-    View getUserContentView(LayoutInflater layoutInflater, ViewGroup parent) {
+    protected View getUserContentView(LayoutInflater layoutInflater, ViewGroup parent) {
         cameraControlPanel = (CameraControlPanel) layoutInflater.inflate(R.layout.user_control_layout, parent, false);
 
         if (cameraControlPanel != null) {

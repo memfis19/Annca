@@ -39,6 +39,15 @@
             android:name="io.github.memfis19.annca.internal.ui.BaseAnncaActivity"
             android:screenOrientation="portrait"
             android:theme="@style/ThemeFullscreen" />
+        <activity
+            android:name=".CustomCameraActivity"
+            android:screenOrientation="portrait"
+            android:theme="@style/ThemeFullscreen" />
+
+        <activity
+            android:name=".CustomCamera2Activity"
+            android:screenOrientation="portrait"
+            android:theme="@style/ThemeFullscreen" />
     </application>
 
 

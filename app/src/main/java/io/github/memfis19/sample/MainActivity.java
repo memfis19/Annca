@@ -16,6 +16,7 @@ import java.util.List;
 
 import io.github.memfis19.annca.Annca;
 import io.github.memfis19.annca.internal.configuration.AnncaConfiguration;
+import io.github.memfis19.annca.internal.utils.CameraHelper;
 
 /**
  * Created by memfis on 11/8/16.
@@ -85,6 +86,13 @@ public class MainActivity extends AppCompatActivity {
                 case R.id.dialogDemo:
                     DemoDialogFragment.getInstance().show(getSupportFragmentManager(), "DemoDialogFragment");
                     break;
+                case R.id.customDemo:
+                    if (CameraHelper.hasCamera2(MainActivity.this)) {
+                        startActivity(new Intent(MainActivity.this, CustomCamera2Activity.class));
+                    } else {
+                        startActivity(new Intent(MainActivity.this, CustomCameraActivity.class));
+                    }
+                    break;
             }
         }
     };
@@ -116,6 +124,7 @@ public class MainActivity extends AppCompatActivity {
         findViewById(R.id.videoLimitedConfiguration).setOnClickListener(onClickListener);
         findViewById(R.id.universalConfiguration).setOnClickListener(onClickListener);
         findViewById(R.id.dialogDemo).setOnClickListener(onClickListener);
+        findViewById(R.id.customDemo).setOnClickListener(onClickListener);
     }
 
     @Override

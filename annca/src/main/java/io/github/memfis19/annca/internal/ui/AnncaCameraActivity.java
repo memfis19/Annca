@@ -128,7 +128,7 @@ abstract public class AnncaCameraActivity<CameraId> extends Activity
             previewContainer.removeAllViews();
     }
 
-    abstract View getUserContentView(LayoutInflater layoutInflater, ViewGroup parent);
+    protected abstract View getUserContentView(LayoutInflater layoutInflater, ViewGroup parent);
 
     @Override
     public void onSensorChanged(SensorEvent sensorEvent) {
