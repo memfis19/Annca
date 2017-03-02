@@ -60,7 +60,7 @@ public class MainActivity extends AppCompatActivity {
                 case R.id.photoConfiguration:
                     AnncaConfiguration.Builder photo = new AnncaConfiguration.Builder(activity, CAPTURE_MEDIA);
                     photo.setMediaAction(AnncaConfiguration.MEDIA_ACTION_PHOTO);
-                    photo.setMediaQuality(AnncaConfiguration.MEDIA_QUALITY_LOW);
+                    photo.setMediaQuality(AnncaConfiguration.MEDIA_QUALITY_LOWEST);
                     new Annca(photo.build()).launchCamera();
                     break;
                 case R.id.videoConfiguration:

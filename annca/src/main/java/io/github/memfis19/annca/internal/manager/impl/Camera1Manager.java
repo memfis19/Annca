@@ -97,6 +97,7 @@ public class Camera1Manager extends BaseCameraManager<Integer, SurfaceHolder.Cal
             @Override
             public void run() {
                 if (camera != null) {
+                    camera.stopPreview();
                     camera.release();
                     camera = null;
                     if (cameraCloseListener != null) {
