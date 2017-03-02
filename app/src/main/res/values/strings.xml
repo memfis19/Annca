@@ -9,5 +9,6 @@
     <string name="universal_configuration">Universal (Able to switch video/photo)</string>
     <string name="using_within_dialog">Using within dialog</string>
     <string name="custom_camera_layout">Custom camera layout</string>
+    <string name="hearbeat_camera_layout">Hearbeat</string>
 
 </resources>

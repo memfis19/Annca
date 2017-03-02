@@ -3,7 +3,7 @@ package io.github.memfis19.annca.internal.controller.impl;
 import android.hardware.Camera;
 import android.os.Bundle;
 import android.util.Log;
-import android.view.SurfaceHolder;
+import android.view.View;
 
 import java.io.File;
 
@@ -16,7 +16,6 @@ import io.github.memfis19.annca.internal.manager.listener.CameraCloseListener;
 import io.github.memfis19.annca.internal.manager.listener.CameraOpenListener;
 import io.github.memfis19.annca.internal.manager.listener.CameraPhotoListener;
 import io.github.memfis19.annca.internal.manager.listener.CameraVideoListener;
-import io.github.memfis19.annca.internal.ui.view.AutoFitSurfaceView;
 import io.github.memfis19.annca.internal.utils.CameraHelper;
 import io.github.memfis19.annca.internal.utils.Size;
 
@@ -26,13 +25,13 @@ import io.github.memfis19.annca.internal.utils.Size;
 
 @SuppressWarnings("deprecation")
 public class Camera1Controller implements io.github.memfis19.annca.internal.controller.CameraController<Integer>,
-        CameraOpenListener<Integer, SurfaceHolder.Callback>, CameraPhotoListener, CameraCloseListener<Integer>, CameraVideoListener {
+        CameraOpenListener<Integer>, CameraPhotoListener, CameraCloseListener<Integer>, CameraVideoListener {
 
     private final static String TAG = "Camera1Controller";
 
     private Integer currentCameraId;
     private ConfigurationProvider configurationProvider;
-    private CameraManager<Integer, SurfaceHolder.Callback, Camera.Parameters, Camera> cameraManager;
+    private CameraManager<Integer, Camera.Parameters, Camera> cameraManager;
     private CameraView cameraView;
 
     private File outputFile;
@@ -126,9 +125,9 @@ public class Camera1Controller implements io.github.memfis19.annca.internal.cont
 
 
     @Override
-    public void onCameraOpened(Integer cameraId, Size previewSize, SurfaceHolder.Callback surfaceCallback) {
+    public void onCameraOpened(Integer cameraId, Size previewSize, View view) {
         cameraView.updateUiForMediaAction(configurationProvider.getMediaAction());
-        cameraView.updateCameraPreview(previewSize, new AutoFitSurfaceView(cameraView.getActivity(), surfaceCallback));
+        cameraView.updateCameraPreview(previewSize, view);
         cameraView.updateCameraSwitcher(getNumberOfCameras());
     }
 

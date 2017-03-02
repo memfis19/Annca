@@ -51,7 +51,8 @@ public class Annca {
 
         Intent cameraIntent;
 
-        if (CameraHelper.hasCamera2(anncaConfiguration.getActivity())) {
+        if (CameraHelper.hasCamera2(anncaConfiguration.getActivity())
+                || (anncaConfiguration.getFragment() != null && CameraHelper.hasCamera2(anncaConfiguration.getFragment().getContext()))) {
             if (anncaConfiguration.getFragment() != null)
                 cameraIntent = new Intent(anncaConfiguration.getFragment().getContext(), Camera2Activity.class);
             else cameraIntent = new Intent(anncaConfiguration.getActivity(), Camera2Activity.class);

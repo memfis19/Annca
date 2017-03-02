@@ -42,6 +42,7 @@ import io.github.memfis19.annca.internal.manager.listener.CameraCloseListener;
 import io.github.memfis19.annca.internal.manager.listener.CameraOpenListener;
 import io.github.memfis19.annca.internal.manager.listener.CameraPhotoListener;
 import io.github.memfis19.annca.internal.manager.listener.CameraVideoListener;
+import io.github.memfis19.annca.internal.ui.view.AutoFitTextureView;
 import io.github.memfis19.annca.internal.utils.CameraHelper;
 import io.github.memfis19.annca.internal.utils.ImageSaver;
 import io.github.memfis19.annca.internal.utils.Size;
@@ -50,14 +51,14 @@ import io.github.memfis19.annca.internal.utils.Size;
  * Created by memfis on 8/9/16.
  */
 @TargetApi(Build.VERSION_CODES.LOLLIPOP)
-public final class Camera2Manager extends BaseCameraManager<String, TextureView.SurfaceTextureListener, CaptureRequest.Builder, CameraDevice>
+public final class Camera2Manager extends BaseCameraManager<String, CaptureRequest.Builder, CameraDevice>
         implements ImageReader.OnImageAvailableListener, TextureView.SurfaceTextureListener {
 
     private final static String TAG = "Camera2Manager";
 
     private static Camera2Manager currentInstance;
 
-    private CameraOpenListener<String, TextureView.SurfaceTextureListener> cameraOpenListener;
+    private CameraOpenListener<String> cameraOpenListener;
     private CameraPhotoListener cameraPhotoListener;
     private CameraVideoListener cameraVideoListener;
 
@@ -87,6 +88,7 @@ public final class Camera2Manager extends BaseCameraManager<String, TextureView.
     private StreamConfigurationMap frontCameraStreamConfigurationMap;
     private StreamConfigurationMap backCameraStreamConfigurationMap;
 
+    private AutoFitTextureView autoFitTextureView;
     private SurfaceTexture texture;
 
     private Surface workingSurface;
@@ -101,7 +103,11 @@ public final class Camera2Manager extends BaseCameraManager<String, TextureView.
                     @Override
                     public void run() {
                         if (!TextUtils.isEmpty(currentCameraId) && previewSize != null && currentInstance != null)
-                            cameraOpenListener.onCameraOpened(currentCameraId, previewSize, currentInstance);
+                            if (autoFitTextureView.isAvailable()) {
+                                cameraOpenListener.onCameraOpened(currentCameraId, previewSize, autoFitTextureView);
+                                onSurfaceTextureAvailable(autoFitTextureView.getSurfaceTexture(), autoFitTextureView.getWidth(), autoFitTextureView.getHeight());
+                            } else
+                                cameraOpenListener.onCameraOpened(currentCameraId, previewSize, autoFitTextureView);
                     }
                 });
             }
@@ -165,6 +171,7 @@ public final class Camera2Manager extends BaseCameraManager<String, TextureView.
     public void initializeCameraManager(ConfigurationProvider configurationProvider, Context context) {
         super.initializeCameraManager(configurationProvider, context);
 
+        autoFitTextureView = new AutoFitTextureView(context, this);
         this.manager = (CameraManager) context.getSystemService(Context.CAMERA_SERVICE);
 
         WindowManager windowManager = (WindowManager) context.getSystemService(Context.WINDOW_SERVICE);
@@ -196,7 +203,7 @@ public final class Camera2Manager extends BaseCameraManager<String, TextureView.
     }
 
     @Override
-    public void openCamera(String cameraId, final CameraOpenListener<String, TextureView.SurfaceTextureListener> cameraOpenListener) {
+    public void openCamera(String cameraId, final CameraOpenListener<String> cameraOpenListener) {
         this.currentCameraId = cameraId;
         this.cameraOpenListener = cameraOpenListener;
         backgroundHandler.post(new Runnable() {
@@ -810,11 +817,13 @@ public final class Camera2Manager extends BaseCameraManager<String, TextureView.
 
     @Override
     public boolean onSurfaceTextureDestroyed(SurfaceTexture surfaceTexture) {
+        Log.i(TAG, "onSurfaceTextureDestroyed: ");
         return true;
     }
 
     @Override
     public void onSurfaceTextureUpdated(SurfaceTexture surfaceTexture) {
+        Log.i(TAG, "onSurfaceTextureUpdated: ");
     }
 
 }

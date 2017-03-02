@@ -6,7 +6,7 @@ import android.hardware.camera2.CaptureRequest;
 import android.os.Build;
 import android.os.Bundle;
 import android.util.Log;
-import android.view.TextureView;
+import android.view.View;
 
 import java.io.File;
 
@@ -20,7 +20,6 @@ import io.github.memfis19.annca.internal.manager.listener.CameraCloseListener;
 import io.github.memfis19.annca.internal.manager.listener.CameraOpenListener;
 import io.github.memfis19.annca.internal.manager.listener.CameraPhotoListener;
 import io.github.memfis19.annca.internal.manager.listener.CameraVideoListener;
-import io.github.memfis19.annca.internal.ui.view.AutoFitTextureView;
 import io.github.memfis19.annca.internal.utils.CameraHelper;
 import io.github.memfis19.annca.internal.utils.Size;
 
@@ -29,14 +28,14 @@ import io.github.memfis19.annca.internal.utils.Size;
  */
 @TargetApi(Build.VERSION_CODES.LOLLIPOP)
 public class Camera2Controller implements CameraController<String>,
-        CameraOpenListener<String, TextureView.SurfaceTextureListener>,
+        CameraOpenListener<String>,
         CameraPhotoListener, CameraVideoListener, CameraCloseListener<String> {
 
     private final static String TAG = "Camera2Controller";
 
     private String currentCameraId;
     private ConfigurationProvider configurationProvider;
-    private CameraManager<String, TextureView.SurfaceTextureListener, CaptureRequest.Builder, CameraDevice> camera2Manager;
+    private CameraManager<String, CaptureRequest.Builder, CameraDevice> camera2Manager;
     private CameraView cameraView;
 
     private File outputFile;
@@ -130,9 +129,9 @@ public class Camera2Controller implements CameraController<String>,
     }
 
     @Override
-    public void onCameraOpened(String openedCameraId, Size previewSize, TextureView.SurfaceTextureListener surfaceTextureListener) {
-        cameraView.updateUiForMediaAction(AnncaConfiguration.MEDIA_ACTION_UNSPECIFIED);
-        cameraView.updateCameraPreview(previewSize, new AutoFitTextureView(cameraView.getActivity(), surfaceTextureListener));
+    public void onCameraOpened(String openedCameraId, Size previewSize, View view) {
+        cameraView.updateUiForMediaAction(configurationProvider.getMediaAction());
+        cameraView.updateCameraPreview(previewSize, view);
         cameraView.updateCameraSwitcher(camera2Manager.getNumberOfCameras());
     }
 

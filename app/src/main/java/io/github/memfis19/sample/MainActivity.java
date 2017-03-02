@@ -60,7 +60,7 @@ public class MainActivity extends AppCompatActivity {
                 case R.id.photoConfiguration:
                     AnncaConfiguration.Builder photo = new AnncaConfiguration.Builder(activity, CAPTURE_MEDIA);
                     photo.setMediaAction(AnncaConfiguration.MEDIA_ACTION_PHOTO);
-                    photo.setMediaQuality(AnncaConfiguration.MEDIA_QUALITY_LOWEST);
+                    photo.setMediaQuality(AnncaConfiguration.MEDIA_QUALITY_LOW);
                     new Annca(photo.build()).launchCamera();
                     break;
                 case R.id.videoConfiguration:
@@ -92,6 +92,9 @@ public class MainActivity extends AppCompatActivity {
                     } else {
                         startActivity(new Intent(MainActivity.this, CustomCameraActivity.class));
                     }
+                    break;
+                case R.id.heartBeat:
+                    startActivity(new Intent(MainActivity.this, HearBeatCameraActivity.class));
                     break;
             }
         }
@@ -125,6 +128,7 @@ public class MainActivity extends AppCompatActivity {
         findViewById(R.id.universalConfiguration).setOnClickListener(onClickListener);
         findViewById(R.id.dialogDemo).setOnClickListener(onClickListener);
         findViewById(R.id.customDemo).setOnClickListener(onClickListener);
+        findViewById(R.id.heartBeat).setOnClickListener(onClickListener);
     }
 
     @Override

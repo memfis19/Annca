@@ -23,6 +23,7 @@ import io.github.memfis19.annca.internal.manager.listener.CameraCloseListener;
 import io.github.memfis19.annca.internal.manager.listener.CameraOpenListener;
 import io.github.memfis19.annca.internal.manager.listener.CameraPhotoListener;
 import io.github.memfis19.annca.internal.manager.listener.CameraVideoListener;
+import io.github.memfis19.annca.internal.ui.view.AutoFitSurfaceView;
 import io.github.memfis19.annca.internal.utils.CameraHelper;
 import io.github.memfis19.annca.internal.utils.Size;
 
@@ -30,12 +31,14 @@ import io.github.memfis19.annca.internal.utils.Size;
  * Created by memfis on 8/14/16.
  */
 @SuppressWarnings("deprecation")
-public class Camera1Manager extends BaseCameraManager<Integer, SurfaceHolder.Callback, Camera.Parameters, Camera>
+public class Camera1Manager extends BaseCameraManager<Integer, Camera.Parameters, Camera>
         implements SurfaceHolder.Callback, Camera.PictureCallback {
 
     private static final String TAG = "Camera1Manager";
 
     private Camera camera;
+
+    private AutoFitSurfaceView autoFitSurfaceView;
     private Surface surface;
 
     private static Camera1Manager currentInstance;
@@ -46,7 +49,7 @@ public class Camera1Manager extends BaseCameraManager<Integer, SurfaceHolder.Cal
     private File outputPath;
     private CameraVideoListener videoListener;
     private CameraPhotoListener photoListener;
-    private CameraOpenListener<Integer, SurfaceHolder.Callback> cameraOpenListener;
+    private CameraOpenListener<Integer> cameraOpenListener;
 
     private Camera1Manager() {
 
@@ -59,7 +62,7 @@ public class Camera1Manager extends BaseCameraManager<Integer, SurfaceHolder.Cal
 
     @Override
     public void openCamera(final Integer cameraId,
-                           final CameraOpenListener<Integer, SurfaceHolder.Callback> cameraOpenListener) {
+                           final CameraOpenListener<Integer> cameraOpenListener) {
         this.currentCameraId = cameraId;
         this.cameraOpenListener = cameraOpenListener;
         backgroundHandler.post(new Runnable() {
@@ -72,7 +75,7 @@ public class Camera1Manager extends BaseCameraManager<Integer, SurfaceHolder.Cal
                         uiHandler.post(new Runnable() {
                             @Override
                             public void run() {
-                                cameraOpenListener.onCameraOpened(cameraId, previewSize, currentInstance);
+                                cameraOpenListener.onCameraOpened(cameraId, previewSize, autoFitSurfaceView);
                             }
                         });
                     }
@@ -194,6 +197,7 @@ public class Camera1Manager extends BaseCameraManager<Integer, SurfaceHolder.Cal
     public void initializeCameraManager(ConfigurationProvider configurationProvider, Context context) {
         super.initializeCameraManager(configurationProvider, context);
 
+        autoFitSurfaceView = new AutoFitSurfaceView(context, this);
         numberOfCameras = Camera.getNumberOfCameras();
 
         for (int i = 0; i < numberOfCameras; ++i) {
