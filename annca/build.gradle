@@ -23,7 +23,7 @@ ext {
     SUPPORT_VERSION = '25.2.0'
     TARGET_SDK = 24
     MIN_SDK = 10
-    BUILD_TOOLS = "24.0.3"
+    BUILD_TOOLS = "25.0.0"
 }
 
 android {

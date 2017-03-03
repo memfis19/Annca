@@ -1,5 +1,6 @@
 package io.github.memfis19.sample;
 
+import android.Manifest;
 import android.app.Activity;
 import android.content.Intent;
 import android.content.pm.PackageManager;
@@ -42,7 +43,8 @@ public class MainActivity extends AppCompatActivity {
                             android.Manifest.permission.CAMERA,
                             android.Manifest.permission.RECORD_AUDIO,
                             android.Manifest.permission.WRITE_EXTERNAL_STORAGE,
-                            android.Manifest.permission.READ_EXTERNAL_STORAGE},
+                            android.Manifest.permission.READ_EXTERNAL_STORAGE,
+                            Manifest.permission.VIBRATE},
                     REQUEST_CAMERA_PERMISSIONS);
         } else {
             enableCamera();

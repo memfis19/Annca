@@ -1,17 +1,22 @@
 package io.github.memfis19.sample.utils;
 
+import android.content.Context;
 import android.graphics.Color;
 import android.os.Handler;
 import android.os.HandlerThread;
 import android.os.Looper;
 import android.os.Process;
+import android.os.Vibrator;
+import android.support.v8.renderscript.Allocation;
+import android.support.v8.renderscript.Element;
+import android.support.v8.renderscript.RenderScript;
+import android.support.v8.renderscript.ScriptIntrinsicYuvToRGB;
+import android.support.v8.renderscript.Type;
 
 import java.util.AbstractMap;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
-
-import io.github.memfis19.annca.internal.utils.Size;
 
 /**
  * Created by memfis on 3/2/17.
@@ -27,14 +32,22 @@ public class HeartBeatProcessor {
     private Handler imageProcessorHandler;
     private Handler uiHandler = new Handler(Looper.getMainLooper());
 
-    private Size previewSize = null;
+    private int width = 0;
+    private int height = 0;
     private OnFrameProcessListener onFrameProcessListener = null;
     private boolean isPrepared = false;
 
-    private static final int SELECTION_SIZE = 150;
-    private static final int MEDIANA_SIZE = 50;
+    private static final int SELECTION_SIZE = 300;
+    private static final int MEDIANA_SIZE = 150;
     private static final float DEVIATION = 0.01f;
     private static final int FRAME_STEP_SIZE = 6;
+
+    private Context context;
+    private RenderScript renderScript;
+    private Vibrator vibrator;
+    private boolean useRenderScript = false;
+    private boolean vibrate = false;
+    private ScriptIntrinsicYuvToRGB yuvToRgbIntrinsic;
 
     private List<Integer> frameValues = new ArrayList<>();
     private CircularFifoQueue<Integer> values = new CircularFifoQueue<>(SELECTION_SIZE);
@@ -45,20 +58,50 @@ public class HeartBeatProcessor {
     private float averageHrPm = 0;
 
     public HeartBeatProcessor() {
+        isPrepared = false;
     }
 
-    public void prepare(Size previewSize, OnFrameProcessListener onFrameProcessListener) {
-        if (previewSize == null)
-            throw new IllegalArgumentException("Preview size can't be null.");
+    /***
+     * Construct HeartBeatProcessor which is able to use RenderScript for YUV-RGB conversion
+     * @param context
+     */
+    public HeartBeatProcessor(Context context, boolean useRenderScript, boolean vibrate) {
+        this.context = context;
+        this.useRenderScript = useRenderScript;
+        this.vibrate = vibrate;
+
+        isPrepared = false;
+    }
+
+    public void prepare(int width, int height, OnFrameProcessListener onFrameProcessListener) {
+        if (width <= 0 || height <= 0)
+            throw new IllegalArgumentException("Preview size can't be <= 0.");
+
+        this.width = width;
+        this.height = height;
 
         imageProcessorHandlerThread.start();
         imageProcessorHandler = new Handler(imageProcessorHandlerThread.getLooper());
 
-        this.previewSize = previewSize;
+        if (context != null) renderScript = RenderScript.create(context);
+        if (context != null && vibrate)
+            vibrator = (Vibrator) context.getSystemService(Context.VIBRATOR_SERVICE);
+
         this.onFrameProcessListener = onFrameProcessListener;
+
+        isPrepared = true;
     }
 
     public void release() {
+        isPrepared = false;
+
+        if (renderScript != null) {
+            renderScript.destroy();
+            renderScript.finish();
+        }
+
+        context = null;
+
         imageProcessorHandlerThread.quit();
         values.clear();
         hrPmValues.clear();
@@ -68,6 +111,9 @@ public class HeartBeatProcessor {
     }
 
     public void processFrame(final byte[] data) {
+        if (!isPrepared)
+            throw new IllegalStateException("HeartBeatProcessor is not prepared. Call prepare before using.");
+
         imageProcessorHandler.post(new Runnable() {
             @Override
             public void run() {
@@ -115,6 +161,7 @@ public class HeartBeatProcessor {
                         }
 
                         if (onFrameProcessListener != null) {
+                            if (vibrator != null) vibrator.vibrate(10);
                             uiHandler.post(new Runnable() {
                                 @Override
                                 public void run() {
@@ -125,8 +172,14 @@ public class HeartBeatProcessor {
                     }
                 }
 
-                int[] rgb = new int[data.length];
-                decodeYUV420SP(rgb, data, previewSize.getWidth(), previewSize.getHeight());
+                int[] rgb;
+                if (context != null && renderScript != null && useRenderScript) {
+                    rgb = renderScriptYUVToRGB(data, width, height);
+                } else {
+                    rgb = new int[data.length];
+                    decodeYUVToRGB(rgb, data, width, height);
+                }
+
                 int sum = 0;
                 for (int pixel : rgb) {
                     sum += Color.red(pixel);
@@ -136,7 +189,34 @@ public class HeartBeatProcessor {
         });
     }
 
-    private void decodeYUV420SP(int[] rgb, byte[] yuv420sp, int width, int height) {
+    private int[] renderScriptYUVToRGB(byte[] yuvByteArray, int width, int height) {
+        yuvToRgbIntrinsic = ScriptIntrinsicYuvToRGB.create(renderScript, Element.U8_4(renderScript));
+
+        Type.Builder yuvType = new Type.Builder(renderScript, Element.U8(renderScript)).setX(yuvByteArray.length);
+        Allocation in = Allocation.createTyped(renderScript, yuvType.create(), Allocation.USAGE_SCRIPT);
+
+        Type.Builder rgbaType = new Type.Builder(renderScript, Element.RGBA_8888(renderScript)).setX(width).setY(height);
+        Allocation out = Allocation.createTyped(renderScript, rgbaType.create(), Allocation.USAGE_SCRIPT);
+
+        in.copyFrom(yuvByteArray);
+
+        yuvToRgbIntrinsic.setInput(in);
+        yuvToRgbIntrinsic.forEach(out);
+
+        byte[] tmp = new byte[out.getBytesSize()];
+        out.copyTo(tmp);
+
+        int[] colorArray = new int[tmp.length / 3];
+        for (int i = 0; i < tmp.length; i += 3) {
+//            int color = Color.rgb(tmp[i], tmp[i + 1], tmp[i + 2]);
+            colorArray[i / 3] = (0xFF << 24) | (tmp[i] << 16) | (tmp[i + 1] << 8) | tmp[i + 2];
+        }
+        yuvToRgbIntrinsic.destroy();
+
+        return colorArray;
+    }
+
+    private void decodeYUVToRGB(int[] rgb, byte[] yuv420sp, int width, int height) {
         final int frameSize = width * height;
 
         for (int j = 0, yp = 0; j < height; j++) {

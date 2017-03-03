@@ -3,6 +3,7 @@ package io.github.memfis19.sample;
 import android.app.Activity;
 import android.graphics.Color;
 import android.hardware.Camera;
+import android.os.Bundle;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -30,10 +31,17 @@ import io.github.memfis19.sample.utils.HeartBeatProcessor;
 public class HearBeatCameraActivity extends AnncaCameraActivity<Integer> {
 
     private GraphView graphView;
-    private HeartBeatProcessor heartBeatProcessor = new HeartBeatProcessor();
+    private HeartBeatProcessor heartBeatProcessor;
 
     private Camera.Parameters parameters;
     private Camera.Size size;
+
+    @Override
+    protected void onCreate(Bundle savedInstanceState) {
+        super.onCreate(savedInstanceState);
+
+        heartBeatProcessor = new HeartBeatProcessor(this, true, true);
+    }
 
     @Override
     protected void onDestroy() {
@@ -80,7 +88,7 @@ public class HearBeatCameraActivity extends AnncaCameraActivity<Integer> {
                     parameters.getPreviewFpsRange(previewRange);
                     System.out.println(previewRange);
 
-                    heartBeatProcessor.prepare(new Size(size), new HeartBeatProcessor.OnFrameProcessListener() {
+                    heartBeatProcessor.prepare(size.width, size.height, new HeartBeatProcessor.OnFrameProcessListener() {
                         @Override
                         public void onFrameProcessed(int value, long time, float averageHrPm) {
                             graphView.drawPoint(value, time, averageHrPm);
