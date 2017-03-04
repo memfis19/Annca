@@ -6,6 +6,9 @@ Android solution to simplify work with different camera apis. Include video and 
 
 <img src="https://github.com/memfis19/Annca/blob/master/art/default_camera.png" width="200px" /> <img src="https://github.com/memfis19/Annca/blob/master/art/settings_for_video_limitation.png" width="200px" /><img src="https://github.com/memfis19/Annca/blob/master/art/video_camera.png" width="200" /><img src="https://github.com/memfis19/Annca/blob/master/art/video_low_quality.png" width="200" />
 
+## Forks:
+<a href="https://github.com/florent37/CameraFragment">CameraFragment</a>
+
 ## Example of using
 Add Annca activities to the your app manifest file:
 ```
