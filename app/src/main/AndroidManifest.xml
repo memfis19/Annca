@@ -8,6 +8,9 @@
     <uses-permission android:name="android.permission.READ_EXTERNAL_STORAGE" />
     <uses-permission android:name="android.permission.VIBRATE" />
 
+    <uses-feature
+        android:glEsVersion="0x00020000"
+        android:required="true" />
 
     <application
         android:allowBackup="true"
@@ -38,10 +41,6 @@
             android:screenOrientation="portrait"
             android:theme="@style/ThemeFullscreen" />
         <activity
-            android:name="io.github.memfis19.annca.internal.ui.BaseAnncaActivity"
-            android:screenOrientation="portrait"
-            android:theme="@style/ThemeFullscreen" />
-        <activity
             android:name=".CustomCameraActivity"
             android:screenOrientation="portrait"
             android:theme="@style/ThemeFullscreen" />
@@ -52,7 +51,12 @@
             android:theme="@style/ThemeFullscreen" />
 
         <activity
-            android:name=".HearBeatCameraActivity"
+            android:name=".HeartBeatCameraActivity"
+            android:screenOrientation="portrait"
+            android:theme="@style/ThemeFullscreen" />
+
+        <activity
+            android:name=".HeartBeatCamera2Activity"
             android:screenOrientation="portrait"
             android:theme="@style/ThemeFullscreen" />
     </application>

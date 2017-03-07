@@ -11,13 +11,15 @@ import android.view.ViewGroup;
 import android.widget.FrameLayout;
 import android.widget.Toast;
 
+import java.nio.ByteBuffer;
+
 import io.github.memfis19.annca.internal.configuration.AnncaConfiguration;
 import io.github.memfis19.annca.internal.configuration.ConfigurationProvider;
 import io.github.memfis19.annca.internal.controller.CameraController;
 import io.github.memfis19.annca.internal.controller.impl.Camera1Controller;
 import io.github.memfis19.annca.internal.controller.view.CameraView;
-import io.github.memfis19.annca.internal.manager.impl.CameraHandler;
 import io.github.memfis19.annca.internal.manager.impl.ParametersHandler;
+import io.github.memfis19.annca.internal.manager.listener.CameraPreviewCallback;
 import io.github.memfis19.annca.internal.ui.AnncaCameraActivity;
 import io.github.memfis19.annca.internal.utils.Size;
 import io.github.memfis19.annca.internal.utils.Utils;
@@ -28,7 +30,7 @@ import io.github.memfis19.sample.utils.HeartBeatProcessor;
  * Created by memfis on 2/7/17.
  */
 
-public class HearBeatCameraActivity extends AnncaCameraActivity<Integer> {
+public class HeartBeatCameraActivity extends AnncaCameraActivity<Integer> {
 
     private GraphView graphView;
     private HeartBeatProcessor heartBeatProcessor;
@@ -98,19 +100,19 @@ public class HearBeatCameraActivity extends AnncaCameraActivity<Integer> {
                     return params;
                 }
             });
-            getCameraController().getCameraManager().handleCamera(new CameraHandler<Camera>() {
+            getCameraController().getCameraManager().setPreviewCallback(new CameraPreviewCallback() {
                 @Override
-                public void handleCamera(Camera camera) {
-                    camera.setPreviewCallback(new Camera.PreviewCallback() {
-                        @Override
-                        public void onPreviewFrame(final byte[] data, final Camera camera) {
-                            try {
-                                heartBeatProcessor.processFrame(data);
-                            } catch (Exception e) {
-                                Log.e("Camera", "Error", e);
-                            }
-                        }
-                    });
+                public void onPreviewFrame(byte[] data) {
+                    try {
+                        heartBeatProcessor.processFrame(data);
+                    } catch (Exception e) {
+                        Log.e("Camera", "Error", e);
+                    }
+                }
+
+                @Override
+                public void onPreviewFrame(ByteBuffer byteBuffer) {
+
                 }
             });
         } catch (Exception e) {

@@ -96,7 +96,11 @@ public class MainActivity extends AppCompatActivity {
                     }
                     break;
                 case R.id.heartBeat:
-                    startActivity(new Intent(MainActivity.this, HearBeatCameraActivity.class));
+                    if (CameraHelper.hasCamera2(MainActivity.this)) {
+                        startActivity(new Intent(MainActivity.this, HeartBeatCamera2Activity.class));
+                    } else {
+                        startActivity(new Intent(MainActivity.this, HeartBeatCameraActivity.class));
+                    }
                     break;
             }
         }

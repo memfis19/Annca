@@ -22,6 +22,7 @@ import io.github.memfis19.annca.internal.configuration.ConfigurationProvider;
 import io.github.memfis19.annca.internal.manager.listener.CameraCloseListener;
 import io.github.memfis19.annca.internal.manager.listener.CameraOpenListener;
 import io.github.memfis19.annca.internal.manager.listener.CameraPhotoListener;
+import io.github.memfis19.annca.internal.manager.listener.CameraPreviewCallback;
 import io.github.memfis19.annca.internal.manager.listener.CameraVideoListener;
 import io.github.memfis19.annca.internal.ui.view.AutoFitSurfaceView;
 import io.github.memfis19.annca.internal.utils.CameraHelper;
@@ -430,6 +431,17 @@ public class Camera1Manager extends BaseCameraManager<Integer, Camera.Parameters
         } catch (Throwable ignore) {
         }
         return false;
+    }
+
+    @Override
+    public void setPreviewCallback(final CameraPreviewCallback cameraPreviewCallback) {
+        if (cameraPreviewCallback == null) return;
+        camera.setPreviewCallback(new Camera.PreviewCallback() {
+            @Override
+            public void onPreviewFrame(byte[] data, Camera camera) {
+                cameraPreviewCallback.onPreviewFrame(data);
+            }
+        });
     }
 
     private void setAutoFocus(Camera camera, Camera.Parameters parameters) {

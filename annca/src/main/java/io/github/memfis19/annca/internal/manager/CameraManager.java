@@ -11,6 +11,7 @@ import io.github.memfis19.annca.internal.manager.impl.ParametersHandler;
 import io.github.memfis19.annca.internal.manager.listener.CameraCloseListener;
 import io.github.memfis19.annca.internal.manager.listener.CameraOpenListener;
 import io.github.memfis19.annca.internal.manager.listener.CameraPhotoListener;
+import io.github.memfis19.annca.internal.manager.listener.CameraPreviewCallback;
 import io.github.memfis19.annca.internal.manager.listener.CameraVideoListener;
 import io.github.memfis19.annca.internal.utils.Size;
 
@@ -54,4 +55,6 @@ public interface CameraManager<CameraId, CameraParameters, Camera> {
     boolean handleParameters(ParametersHandler<CameraParameters> parameters);
 
     void handleCamera(CameraHandler<Camera> cameraHandler);
+
+    void setPreviewCallback(CameraPreviewCallback cameraPreviewCallback);
 }

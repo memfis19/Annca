@@ -13,6 +13,7 @@ import android.support.v8.renderscript.RenderScript;
 import android.support.v8.renderscript.ScriptIntrinsicYuvToRGB;
 import android.support.v8.renderscript.Type;
 
+import java.nio.ByteBuffer;
 import java.util.AbstractMap;
 import java.util.ArrayList;
 import java.util.Collections;
@@ -108,6 +109,78 @@ public class HeartBeatProcessor {
         timedValues.clear();
         frameValues.clear();
         medianaValues.clear();
+    }
+
+    public void processFrame(ByteBuffer byteBuffer) {
+        if (!isPrepared)
+            throw new IllegalStateException("HeartBeatProcessor is not prepared. Call prepare before using.");
+
+        int sum = 0;
+        for (int i = 0; i < byteBuffer.remaining(); i += 3) {
+            sum += (byteBuffer.get(i) << 16);
+        }
+
+        final int frameValue = sum;
+        imageProcessorHandler.post(new Runnable() {
+            @Override
+            public void run() {
+                if (frameValues.size() > FRAME_STEP_SIZE) {
+                    int currentFrameValue = frameValues.get(frameValues.size() - 1);
+                    int previousFrameValue = frameValues.get(frameValues.size() - 1 - FRAME_STEP_SIZE);
+
+                    final long timeValue = System.currentTimeMillis();
+                    final int value = (currentFrameValue - previousFrameValue);
+
+                    final float subtraction = Math.abs(currentFrameValue - previousFrameValue);
+                    medianaValues.add(subtraction);
+                    float sum = 0;
+                    for (Float currentValue : medianaValues) {
+                        sum += currentValue;
+                    }
+                    final float mediana = sum / (float) medianaValues.size();
+
+                    if (subtraction >= mediana) {
+                        values.add(value);
+                        timedValues.add(new AbstractMap.SimpleEntry<>(timeValue, value));
+
+                        long maxValue = Collections.max(values) + 1;
+                        long minValue = Collections.min(values) + 1;
+
+                        if (values.size() >= SELECTION_SIZE - 5) {
+//                                float sum = 0;
+//                                for (Integer currentValue : values) {
+//                                    sum += currentValue;
+//                                }
+//                                final float mediana = sum / (float) values.size();
+
+                            int hearbeat = 0;
+                            for (Integer currentValue : values) {
+                                if (currentValue <= minValue * DEVIATION) hearbeat++;
+                            }
+                            float hrPm = (timedValues.get(timedValues.size() - 1).getKey() - timedValues.get(0).getKey()) / hearbeat / 2;
+                            hrPmValues.add(hrPm);
+
+                            averageHrPm = 0;
+                            for (Float tmp : hrPmValues) {
+                                averageHrPm += tmp;
+                            }
+                            averageHrPm = averageHrPm / hrPmValues.size();
+                        }
+
+                        if (onFrameProcessListener != null) {
+                            if (vibrator != null) vibrator.vibrate(10);
+                            uiHandler.post(new Runnable() {
+                                @Override
+                                public void run() {
+                                    onFrameProcessListener.onFrameProcessed(value, timeValue, averageHrPm);
+                                }
+                            });
+                        }
+                    }
+                }
+                frameValues.add(frameValue);
+            }
+        });
     }
 
     public void processFrame(final byte[] data) {

@@ -15,13 +15,18 @@ import android.hardware.camera2.CaptureRequest;
 import android.hardware.camera2.CaptureResult;
 import android.hardware.camera2.TotalCaptureResult;
 import android.hardware.camera2.params.StreamConfigurationMap;
+import android.media.Image;
 import android.media.ImageReader;
 import android.media.MediaRecorder;
 import android.os.Build;
+import android.os.Handler;
+import android.os.HandlerThread;
+import android.os.Process;
 import android.support.annotation.IntDef;
 import android.support.annotation.NonNull;
 import android.text.TextUtils;
 import android.util.Log;
+import android.util.Range;
 import android.view.Display;
 import android.view.Surface;
 import android.view.TextureView;
@@ -31,6 +36,7 @@ import java.io.File;
 import java.io.IOException;
 import java.lang.annotation.Retention;
 import java.lang.annotation.RetentionPolicy;
+import java.nio.ByteBuffer;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
@@ -41,6 +47,7 @@ import io.github.memfis19.annca.internal.configuration.ConfigurationProvider;
 import io.github.memfis19.annca.internal.manager.listener.CameraCloseListener;
 import io.github.memfis19.annca.internal.manager.listener.CameraOpenListener;
 import io.github.memfis19.annca.internal.manager.listener.CameraPhotoListener;
+import io.github.memfis19.annca.internal.manager.listener.CameraPreviewCallback;
 import io.github.memfis19.annca.internal.manager.listener.CameraVideoListener;
 import io.github.memfis19.annca.internal.ui.view.AutoFitTextureView;
 import io.github.memfis19.annca.internal.utils.CameraHelper;
@@ -93,6 +100,13 @@ public final class Camera2Manager extends BaseCameraManager<String, CaptureReque
 
     private Surface workingSurface;
     private ImageReader imageReader;
+    private ImageReader previewImageReader;
+
+    private CameraPreviewCallback cameraPreviewCallback;
+
+    private HandlerThread handlerThread;
+    private Handler previewHandler;
+    Range<Integer> fps = null;
 
     private CameraDevice.StateCallback stateCallback = new CameraDevice.StateCallback() {
         @Override
@@ -206,6 +220,11 @@ public final class Camera2Manager extends BaseCameraManager<String, CaptureReque
     public void openCamera(String cameraId, final CameraOpenListener<String> cameraOpenListener) {
         this.currentCameraId = cameraId;
         this.cameraOpenListener = cameraOpenListener;
+
+        handlerThread = new HandlerThread("PreviewFrameProcessor", Process.THREAD_PRIORITY_BACKGROUND);
+        handlerThread.start();
+        previewHandler = new Handler(handlerThread.getLooper());
+
         backgroundHandler.post(new Runnable() {
             @Override
             public void run() {
@@ -241,6 +260,7 @@ public final class Camera2Manager extends BaseCameraManager<String, CaptureReque
 
     @Override
     public void closeCamera(final CameraCloseListener<String> cameraCloseListener) {
+        handlerThread.quit();
         backgroundHandler.post(new Runnable() {
             @Override
             public void run() {
@@ -273,6 +293,12 @@ public final class Camera2Manager extends BaseCameraManager<String, CaptureReque
         } catch (Throwable ignore) {
         }
         return false;
+    }
+
+    @Override
+    public void setPreviewCallback(CameraPreviewCallback cameraPreviewCallback) {
+        if (cameraPreviewCallback == null) return;
+        this.cameraPreviewCallback = cameraPreviewCallback;
     }
 
     @Override
@@ -405,16 +431,15 @@ public final class Camera2Manager extends BaseCameraManager<String, CaptureReque
             if (texture == null) return;
 
             this.texture = texture;
-
             texture.setDefaultBufferSize(previewSize.getWidth(), previewSize.getHeight());
 
             workingSurface = new Surface(texture);
 
-            previewRequestBuilder
-                    = cameraDevice.createCaptureRequest(CameraDevice.TEMPLATE_PREVIEW);
+            previewRequestBuilder = cameraDevice.createCaptureRequest(CameraDevice.TEMPLATE_PREVIEW);
             previewRequestBuilder.addTarget(workingSurface);
+            previewRequestBuilder.addTarget(previewImageReader.getSurface());
 
-            cameraDevice.createCaptureSession(Arrays.asList(workingSurface, imageReader.getSurface()),
+            cameraDevice.createCaptureSession(Arrays.asList(workingSurface, imageReader.getSurface(), previewImageReader.getSurface()),
                     new CameraCaptureSession.StateCallback() {
                         @Override
                         public void onConfigured(@NonNull CameraCaptureSession cameraCaptureSession) {
@@ -426,7 +451,7 @@ public final class Camera2Manager extends BaseCameraManager<String, CaptureReque
                                 @NonNull CameraCaptureSession cameraCaptureSession) {
                             Log.d(TAG, "Fail while starting preview: ");
                         }
-                    }, null);
+                    }, backgroundHandler);
         } catch (Exception e) {
             Log.e(TAG, "Error while preparing surface for preview: ", e);
         }
@@ -496,6 +521,10 @@ public final class Camera2Manager extends BaseCameraManager<String, CaptureReque
             imageReader.close();
             imageReader = null;
         }
+        if (null != previewImageReader) {
+            previewImageReader.close();
+            previewImageReader = null;
+        }
     }
 
     private void closeCameraDevice() {
@@ -561,6 +590,35 @@ public final class Camera2Manager extends BaseCameraManager<String, CaptureReque
                 if (previewSize == null)
                     previewSize = CameraHelper.getSizeWithClosestRatio(Size.fromArray2(map.getOutputSizes(SurfaceTexture.class)), videoSize.getWidth(), videoSize.getHeight());
             }
+
+            previewImageReader = ImageReader.newInstance(previewSize.getWidth(), previewSize.getHeight(),
+                    ImageFormat.YUV_420_888, 1);
+            previewImageReader.setOnImageAvailableListener(new ImageReader.OnImageAvailableListener() {
+                @Override
+                public void onImageAvailable(ImageReader reader) {
+                    if (cameraPreviewCallback != null) {
+                        Image image = null;
+                        ByteBuffer byteBuffer = null;
+                        try {
+                            image = reader.acquireLatestImage();
+                            byteBuffer = image.getPlanes()[0].getBuffer();
+                            cameraPreviewCallback.onPreviewFrame(byteBuffer);
+                        } catch (Exception error) {
+                            Log.e(TAG, "Error while frame processing.", error);
+                        } finally {
+                            if (image != null) image.close();
+                            if (byteBuffer != null) byteBuffer.clear();
+                        }
+                    } else {
+                        try {
+                            reader.acquireLatestImage().close();
+                        } catch (Exception error) {
+                            Log.e(TAG, "Error while frame processing.", error);
+                        }
+                    }
+                }
+            }, previewHandler);
+
         } catch (Exception e) {
             Log.e(TAG, "Error while setup camera sizes.", e);
         }
@@ -825,5 +883,4 @@ public final class Camera2Manager extends BaseCameraManager<String, CaptureReque
     public void onSurfaceTextureUpdated(SurfaceTexture surfaceTexture) {
         Log.i(TAG, "onSurfaceTextureUpdated: ");
     }
-
 }
