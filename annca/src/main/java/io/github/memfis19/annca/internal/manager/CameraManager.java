@@ -57,4 +57,8 @@ public interface CameraManager<CameraId, CameraParameters, Camera> {
     void handleCamera(CameraHandler<Camera> cameraHandler);
 
     void setPreviewCallback(CameraPreviewCallback cameraPreviewCallback);
+
+    void onPause();
+
+    void onResume();
 }

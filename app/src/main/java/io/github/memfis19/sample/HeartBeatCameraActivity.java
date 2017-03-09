@@ -104,7 +104,7 @@ public class HeartBeatCameraActivity extends AnncaCameraActivity<Integer> {
                 @Override
                 public void onPreviewFrame(byte[] data) {
                     try {
-                        heartBeatProcessor.processFrame(data);
+                        heartBeatProcessor.processFrame(data, HeartBeatProcessor.YUV);
                     } catch (Exception e) {
                         Log.e("Camera", "Error", e);
                     }

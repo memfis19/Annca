@@ -118,6 +118,16 @@ public class Camera1Manager extends BaseCameraManager<Integer, Camera.Parameters
     }
 
     @Override
+    public void onPause() {
+
+    }
+
+    @Override
+    public void onResume() {
+
+    }
+
+    @Override
     public void setFlashMode(@AnncaConfiguration.FlashMode int flashMode) {
         setFlashMode(camera, camera.getParameters(), flashMode);
     }

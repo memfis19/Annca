@@ -15,7 +15,7 @@ import io.github.memfis19.annca.internal.configuration.ConfigurationProvider;
 import io.github.memfis19.annca.internal.controller.CameraController;
 import io.github.memfis19.annca.internal.controller.view.CameraView;
 import io.github.memfis19.annca.internal.manager.CameraManager;
-import io.github.memfis19.annca.internal.manager.impl.Camera2Manager;
+import io.github.memfis19.annca.internal.manager.impl.OpenGlCamera2Manager;
 import io.github.memfis19.annca.internal.manager.listener.CameraCloseListener;
 import io.github.memfis19.annca.internal.manager.listener.CameraOpenListener;
 import io.github.memfis19.annca.internal.manager.listener.CameraPhotoListener;
@@ -47,18 +47,22 @@ public class Camera2Controller implements CameraController<String>,
 
     @Override
     public void onCreate(Bundle savedInstanceState) {
-        camera2Manager = Camera2Manager.getInstance();
+        camera2Manager = OpenGlCamera2Manager.getInstance();
         camera2Manager.initializeCameraManager(configurationProvider, cameraView.getActivity());
         currentCameraId = camera2Manager.getFaceBackCameraId();
     }
 
     @Override
     public void onResume() {
+        camera2Manager.onResume();
+
         camera2Manager.openCamera(currentCameraId, this);
     }
 
     @Override
     public void onPause() {
+        camera2Manager.onPause();
+
         camera2Manager.closeCamera(null);
         cameraView.releaseCameraPreview();
     }

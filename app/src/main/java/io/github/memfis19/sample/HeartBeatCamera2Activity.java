@@ -98,6 +98,7 @@ public class HeartBeatCamera2Activity extends AnncaCameraActivity<String> {
                     getCameraController().getCameraManager().setPreviewCallback(new CameraPreviewCallback() {
                         @Override
                         public void onPreviewFrame(byte[] data) {
+                            heartBeatProcessor.processFrame(data, HeartBeatProcessor.ARGB);
                         }
 
                         @Override

@@ -17,9 +17,10 @@ import android.hardware.camera2.CaptureRequest;
 import android.hardware.camera2.CaptureResult;
 import android.hardware.camera2.TotalCaptureResult;
 import android.hardware.camera2.params.StreamConfigurationMap;
-import android.media.Image;
 import android.media.ImageReader;
 import android.media.MediaRecorder;
+import android.opengl.GLES20;
+import android.opengl.Matrix;
 import android.os.Build;
 import android.os.Handler;
 import android.os.HandlerThread;
@@ -29,10 +30,10 @@ import android.support.annotation.NonNull;
 import android.support.v4.app.ActivityCompat;
 import android.text.TextUtils;
 import android.util.Log;
-import android.util.Range;
 import android.view.Display;
 import android.view.Surface;
-import android.view.TextureView;
+import android.view.SurfaceHolder;
+import android.view.SurfaceView;
 import android.view.WindowManager;
 
 import java.io.File;
@@ -40,6 +41,7 @@ import java.io.IOException;
 import java.lang.annotation.Retention;
 import java.lang.annotation.RetentionPolicy;
 import java.nio.ByteBuffer;
+import java.nio.ByteOrder;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
@@ -47,12 +49,18 @@ import java.util.Objects;
 
 import io.github.memfis19.annca.internal.configuration.AnncaConfiguration;
 import io.github.memfis19.annca.internal.configuration.ConfigurationProvider;
+import io.github.memfis19.annca.internal.gles.Drawable2d;
+import io.github.memfis19.annca.internal.gles.EglCore;
+import io.github.memfis19.annca.internal.gles.GlUtil;
+import io.github.memfis19.annca.internal.gles.ScaledDrawable2d;
+import io.github.memfis19.annca.internal.gles.Sprite2d;
+import io.github.memfis19.annca.internal.gles.Texture2dProgram;
+import io.github.memfis19.annca.internal.gles.WindowSurface;
 import io.github.memfis19.annca.internal.manager.listener.CameraCloseListener;
 import io.github.memfis19.annca.internal.manager.listener.CameraOpenListener;
 import io.github.memfis19.annca.internal.manager.listener.CameraPhotoListener;
 import io.github.memfis19.annca.internal.manager.listener.CameraPreviewCallback;
 import io.github.memfis19.annca.internal.manager.listener.CameraVideoListener;
-import io.github.memfis19.annca.internal.ui.view.AutoFitTextureView;
 import io.github.memfis19.annca.internal.utils.CameraHelper;
 import io.github.memfis19.annca.internal.utils.ImageSaver;
 import io.github.memfis19.annca.internal.utils.Size;
@@ -61,12 +69,12 @@ import io.github.memfis19.annca.internal.utils.Size;
  * Created by memfis on 8/9/16.
  */
 @TargetApi(Build.VERSION_CODES.LOLLIPOP)
-public final class Camera2Manager extends BaseCameraManager<String, CaptureRequest.Builder, CameraDevice>
-        implements ImageReader.OnImageAvailableListener, TextureView.SurfaceTextureListener {
+public final class OpenGlCamera2Manager extends BaseCameraManager<String, CaptureRequest.Builder, CameraDevice>
+        implements ImageReader.OnImageAvailableListener, SurfaceHolder.Callback {
 
     private final static String TAG = "Camera2Manager";
 
-    private static Camera2Manager currentInstance;
+    private static OpenGlCamera2Manager currentInstance;
 
     private CameraOpenListener<String> cameraOpenListener;
     private CameraPhotoListener cameraPhotoListener;
@@ -98,18 +106,16 @@ public final class Camera2Manager extends BaseCameraManager<String, CaptureReque
     private StreamConfigurationMap frontCameraStreamConfigurationMap;
     private StreamConfigurationMap backCameraStreamConfigurationMap;
 
-    private AutoFitTextureView autoFitTextureView;
+    private SurfaceView surfaceView;
     private SurfaceTexture texture;
 
     private Surface workingSurface;
     private ImageReader imageReader;
-    private ImageReader previewImageReader;
 
     private CameraPreviewCallback cameraPreviewCallback;
 
     private HandlerThread handlerThread;
     private Handler previewHandler;
-    Range<Integer> fps = null;
 
     private CameraDevice.StateCallback stateCallback = new CameraDevice.StateCallback() {
         @Override
@@ -120,11 +126,7 @@ public final class Camera2Manager extends BaseCameraManager<String, CaptureReque
                     @Override
                     public void run() {
                         if (!TextUtils.isEmpty(currentCameraId) && previewSize != null && currentInstance != null)
-                            if (autoFitTextureView.isAvailable()) {
-                                cameraOpenListener.onCameraOpened(currentCameraId, previewSize, autoFitTextureView);
-                                onSurfaceTextureAvailable(autoFitTextureView.getSurfaceTexture(), autoFitTextureView.getWidth(), autoFitTextureView.getHeight());
-                            } else
-                                cameraOpenListener.onCameraOpened(currentCameraId, previewSize, autoFitTextureView);
+                            cameraOpenListener.onCameraOpened(currentCameraId, previewSize, surfaceView);
                     }
                 });
             }
@@ -176,11 +178,11 @@ public final class Camera2Manager extends BaseCameraManager<String, CaptureReque
 
     };
 
-    private Camera2Manager() {
+    private OpenGlCamera2Manager() {
     }
 
-    public static Camera2Manager getInstance() {
-        if (currentInstance == null) currentInstance = new Camera2Manager();
+    public static OpenGlCamera2Manager getInstance() {
+        if (currentInstance == null) currentInstance = new OpenGlCamera2Manager();
         return currentInstance;
     }
 
@@ -188,8 +190,12 @@ public final class Camera2Manager extends BaseCameraManager<String, CaptureReque
     public void initializeCameraManager(ConfigurationProvider configurationProvider, Context context) {
         super.initializeCameraManager(configurationProvider, context);
 
-        autoFitTextureView = new AutoFitTextureView(context, this);
+        surfaceView = new SurfaceView(context);
+        surfaceView.getHolder().addCallback(this);
+
         this.manager = (CameraManager) context.getSystemService(Context.CAMERA_SERVICE);
+
+        initOpenGl();
 
         WindowManager windowManager = (WindowManager) context.getSystemService(Context.WINDOW_SERVICE);
         Display display = windowManager.getDefaultDisplay();
@@ -217,6 +223,24 @@ public final class Camera2Manager extends BaseCameraManager<String, CaptureReque
         } catch (Exception e) {
             Log.e(TAG, "Error during camera init");
         }
+    }
+
+    private EglCore eglCore;
+    private WindowSurface windowSurface;
+    private Texture2dProgram texture2dProgram;
+    private SurfaceTexture cameraTexture;
+    private final ScaledDrawable2d scaledDrawable2d =
+            new ScaledDrawable2d(Drawable2d.Prefab.RECTANGLE);
+    private final Sprite2d sprite2d = new Sprite2d(scaledDrawable2d);
+
+    private int windowSurfaceWidth;
+    private int windowSurfaceHeight;
+    private float positionX, positionY;
+    //    private int mCameraPreviewWidth, mCameraPreviewHeight;
+    private float[] displayProjectionMatrix = new float[16];
+
+    private void initOpenGl() {
+        eglCore = new EglCore(null, 0);
     }
 
     @Override
@@ -263,16 +287,6 @@ public final class Camera2Manager extends BaseCameraManager<String, CaptureReque
                 }
             }
         });
-    }
-
-    @Override
-    public void onPause() {
-
-    }
-
-    @Override
-    public void onResume() {
-
     }
 
     @Override
@@ -443,20 +457,19 @@ public final class Camera2Manager extends BaseCameraManager<String, CaptureReque
 
     //--------------------Internal methods------------------
 
-    private void startPreview(SurfaceTexture texture) {
+    private void startPreview(SurfaceTexture surfaceTexture) {
         try {
-            if (texture == null) return;
+            if (surfaceTexture == null) return;
 
-            this.texture = texture;
+            texture = surfaceTexture;
             texture.setDefaultBufferSize(previewSize.getWidth(), previewSize.getHeight());
 
             workingSurface = new Surface(texture);
 
             previewRequestBuilder = cameraDevice.createCaptureRequest(CameraDevice.TEMPLATE_PREVIEW);
             previewRequestBuilder.addTarget(workingSurface);
-            previewRequestBuilder.addTarget(previewImageReader.getSurface());
 
-            cameraDevice.createCaptureSession(Arrays.asList(workingSurface, imageReader.getSurface(), previewImageReader.getSurface()),
+            cameraDevice.createCaptureSession(Arrays.asList(workingSurface, imageReader.getSurface()),
                     new CameraCaptureSession.StateCallback() {
                         @Override
                         public void onConfigured(@NonNull CameraCaptureSession cameraCaptureSession) {
@@ -538,10 +551,6 @@ public final class Camera2Manager extends BaseCameraManager<String, CaptureReque
             imageReader.close();
             imageReader = null;
         }
-        if (null != previewImageReader) {
-            previewImageReader.close();
-            previewImageReader = null;
-        }
     }
 
     private void closeCameraDevice() {
@@ -549,6 +558,16 @@ public final class Camera2Manager extends BaseCameraManager<String, CaptureReque
             cameraDevice.close();
             cameraDevice = null;
         }
+    }
+
+    @Override
+    public void onPause() {
+
+    }
+
+    @Override
+    public void onResume() {
+
     }
 
     @Override
@@ -607,34 +626,6 @@ public final class Camera2Manager extends BaseCameraManager<String, CaptureReque
                 if (previewSize == null)
                     previewSize = CameraHelper.getSizeWithClosestRatio(Size.fromArray2(map.getOutputSizes(SurfaceTexture.class)), videoSize.getWidth(), videoSize.getHeight());
             }
-
-            previewImageReader = ImageReader.newInstance(previewSize.getWidth(), previewSize.getHeight(),
-                    ImageFormat.YUV_420_888, 1);
-            previewImageReader.setOnImageAvailableListener(new ImageReader.OnImageAvailableListener() {
-                @Override
-                public void onImageAvailable(ImageReader reader) {
-                    if (cameraPreviewCallback != null) {
-                        Image image = null;
-                        ByteBuffer byteBuffer = null;
-                        try {
-                            image = reader.acquireLatestImage();
-                            byteBuffer = image.getPlanes()[0].getBuffer();
-                            cameraPreviewCallback.onPreviewFrame(byteBuffer);
-                        } catch (Exception error) {
-                            Log.e(TAG, "Error while frame processing.", error);
-                        } finally {
-                            if (image != null) image.close();
-                            if (byteBuffer != null) byteBuffer.clear();
-                        }
-                    } else {
-                        try {
-                            reader.acquireLatestImage().close();
-                        } catch (Exception error) {
-                            Log.e(TAG, "Error while frame processing.", error);
-                        }
-                    }
-                }
-            }, previewHandler);
 
         } catch (Exception e) {
             Log.e(TAG, "Error while setup camera sizes.", e);
@@ -881,23 +872,140 @@ public final class Camera2Manager extends BaseCameraManager<String, CaptureReque
     }
 
     @Override
-    public void onSurfaceTextureAvailable(SurfaceTexture surfaceTexture, int width, int height) {
-        if (surfaceTexture != null) startPreview(surfaceTexture);
+    public void surfaceCreated(SurfaceHolder holder) {
+        Surface surface = holder.getSurface();
+        windowSurface = new WindowSurface(eglCore, surface, false);
+        windowSurface.makeCurrent();
+
+        // Create and configure the SurfaceTexture, which will receive frames from the
+        // camera.  We set the textured rect's program to render from it.
+        texture2dProgram = new Texture2dProgram(Texture2dProgram.ProgramType.TEXTURE_EXT);
+        int textureId = texture2dProgram.createTextureObject();
+        cameraTexture = new SurfaceTexture(textureId);
+        sprite2d.setTexture(textureId);
+
+        boolean newSurface = true;
+        if (!newSurface) {
+            // This Surface was established on a previous run, so no surfaceChanged()
+            // message is forthcoming.  Finish the surface setup now.
+            //
+            // We could also just call this unconditionally, and perhaps do an unnecessary
+            // bit of reallocating if a surface-changed message arrives.
+            windowSurfaceWidth = windowSurface.getWidth();
+            windowSurfaceHeight = windowSurface.getHeight();
+            finishSurfaceSetup();
+        }
+
+        final ByteBuffer pixelBuf = ByteBuffer.allocateDirect(previewSize.getWidth() * previewSize.getHeight() * 4);
+        pixelBuf.order(ByteOrder.LITTLE_ENDIAN);
+
+        cameraTexture.setOnFrameAvailableListener(new SurfaceTexture.OnFrameAvailableListener() {
+            @Override
+            public void onFrameAvailable(SurfaceTexture surfaceTexture) {
+                cameraTexture.updateTexImage();
+
+                if (cameraPreviewCallback != null) {
+                    pixelBuf.clear();
+                    pixelBuf.rewind();
+
+                    GLES20.glReadPixels(0, 0, previewSize.getWidth(), previewSize.getHeight(),
+                            GLES20.GL_RGBA, GLES20.GL_UNSIGNED_BYTE, pixelBuf);
+
+                    byte[] argb = new byte[pixelBuf.remaining()];
+                    pixelBuf.get(argb);
+
+                    cameraPreviewCallback.onPreviewFrame(argb);
+                }
+
+                draw();
+            }
+        });
+    }
+
+    private void draw() {
+        GlUtil.checkGlError("draw start");
+
+        GLES20.glClearColor(0.0f, 0.0f, 0.0f, 1.0f);
+        GLES20.glClear(GLES20.GL_COLOR_BUFFER_BIT);
+        sprite2d.draw(texture2dProgram, displayProjectionMatrix);
+        windowSurface.swapBuffers();
+
+        GlUtil.checkGlError("draw done");
+    }
+
+    private void finishSurfaceSetup() {
+        int width = windowSurfaceWidth;
+        int height = windowSurfaceHeight;
+        Log.d(TAG, "finishSurfaceSetup size=" + width + "x" + height +
+                " camera=" + previewSize.getWidth() + "x" + previewSize.getHeight());
+
+        // Use full window.
+        GLES20.glViewport(0, 0, width, height);
+
+        // Simple orthographic projection, with (0,0) in lower-left corner.
+        Matrix.orthoM(displayProjectionMatrix, 0, 0, width, 0, height, -1, 1);
+
+        // Default position is center of screen.
+        positionX = width / 2.0f;
+        positionY = height / 2.0f;
+
+        updateGeometry();
+
+        // Ready to go, start the camera.
+        Log.d(TAG, "starting camera preview");
+        startPreview(cameraTexture);
+    }
+
+    private void releaseGl() {
+        GlUtil.checkGlError("releaseGl start");
+
+        if (windowSurface != null) {
+            windowSurface.release();
+            windowSurface = null;
+        }
+        if (texture2dProgram != null) {
+            texture2dProgram.release();
+            texture2dProgram = null;
+        }
+        GlUtil.checkGlError("releaseGl done");
+
+        eglCore.makeNothingCurrent();
+    }
+
+    private static final int DEFAULT_ZOOM_PERCENT = 0;      // 0-100
+    private static final int DEFAULT_SIZE_PERCENT = 100;     // 0-100
+    private static final int DEFAULT_ROTATE_PERCENT = 75;    // 0-100
+
+    private void updateGeometry() {
+        int width = windowSurfaceWidth;
+        int height = windowSurfaceHeight;
+
+        int smallDim = Math.min(width, height);
+        // Max scale is a bit larger than the screen, so we can show over-size.
+        float scaled = smallDim * (DEFAULT_SIZE_PERCENT / 100.0f) * 1.25f;
+        float cameraAspect = (float) previewSize.getWidth() / previewSize.getHeight();
+        int newWidth = Math.round(scaled * cameraAspect);
+        int newHeight = Math.round(scaled);
+
+        float zoomFactor = 1.0f - (DEFAULT_ZOOM_PERCENT / 100.0f);
+        int rotAngle = Math.round(360 * (DEFAULT_ROTATE_PERCENT / 100.0f));
+
+        sprite2d.setScale(newWidth, newHeight);
+        sprite2d.setPosition(positionX, positionY);
+        sprite2d.setRotation(rotAngle);
+        scaledDrawable2d.setScale(zoomFactor);
+
     }
 
     @Override
-    public void onSurfaceTextureSizeChanged(SurfaceTexture surfaceTexture, int width, int height) {
-        if (surfaceTexture != null) startPreview(surfaceTexture);
+    public void surfaceChanged(SurfaceHolder holder, int format, int width, int height) {
+        windowSurfaceWidth = width;
+        windowSurfaceHeight = height;
+        finishSurfaceSetup();
     }
 
     @Override
-    public boolean onSurfaceTextureDestroyed(SurfaceTexture surfaceTexture) {
-        Log.i(TAG, "onSurfaceTextureDestroyed: ");
-        return true;
-    }
-
-    @Override
-    public void onSurfaceTextureUpdated(SurfaceTexture surfaceTexture) {
-        Log.i(TAG, "onSurfaceTextureUpdated: ");
+    public void surfaceDestroyed(SurfaceHolder holder) {
+        releaseGl();
     }
 }

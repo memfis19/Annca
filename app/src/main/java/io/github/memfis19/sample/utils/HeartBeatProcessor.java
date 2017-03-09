@@ -111,6 +111,10 @@ public class HeartBeatProcessor {
         medianaValues.clear();
     }
 
+    /***
+     * Experimental method
+     * @param byteBuffer
+     */
     public void processFrame(ByteBuffer byteBuffer) {
         if (!isPrepared)
             throw new IllegalStateException("HeartBeatProcessor is not prepared. Call prepare before using.");
@@ -147,12 +151,6 @@ public class HeartBeatProcessor {
                         long minValue = Collections.min(values) + 1;
 
                         if (values.size() >= SELECTION_SIZE - 5) {
-//                                float sum = 0;
-//                                for (Integer currentValue : values) {
-//                                    sum += currentValue;
-//                                }
-//                                final float mediana = sum / (float) values.size();
-
                             int hearbeat = 0;
                             for (Integer currentValue : values) {
                                 if (currentValue <= minValue * DEVIATION) hearbeat++;
@@ -183,7 +181,10 @@ public class HeartBeatProcessor {
         });
     }
 
-    public void processFrame(final byte[] data) {
+    public static final int ARGB = 0;
+    public static final int YUV = 1;
+
+    public void processFrame(final byte[] data, final int format) {
         if (!isPrepared)
             throw new IllegalStateException("HeartBeatProcessor is not prepared. Call prepare before using.");
 
@@ -209,16 +210,9 @@ public class HeartBeatProcessor {
                         values.add(value);
                         timedValues.add(new AbstractMap.SimpleEntry<>(timeValue, value));
 
-                        long maxValue = Collections.max(values) + 1;
                         long minValue = Collections.min(values) + 1;
 
                         if (values.size() >= SELECTION_SIZE - 5) {
-//                                float sum = 0;
-//                                for (Integer currentValue : values) {
-//                                    sum += currentValue;
-//                                }
-//                                final float mediana = sum / (float) values.size();
-
                             int hearbeat = 0;
                             for (Integer currentValue : values) {
                                 if (currentValue <= minValue * DEVIATION) hearbeat++;
@@ -246,11 +240,18 @@ public class HeartBeatProcessor {
                 }
 
                 int[] rgb;
-                if (context != null && renderScript != null && useRenderScript) {
-                    rgb = renderScriptYUVToRGB(data, width, height);
+                if (format == ARGB) {
+                    rgb = new int[data.length / 4];
+                    for (int i = 0; i < data.length; i += 4) {
+                        rgb[i / 4] = Color.argb(data[i + 3], data[i], data[i + 1], data[i + 2]);
+                    }
                 } else {
-                    rgb = new int[data.length];
-                    decodeYUVToRGB(rgb, data, width, height);
+                    if (context != null && renderScript != null && useRenderScript) {
+                        rgb = renderScriptYUVToRGB(data, width, height);
+                    } else {
+                        rgb = new int[data.length];
+                        decodeYUVToRGB(rgb, data, width, height);
+                    }
                 }
 
                 int sum = 0;
@@ -279,10 +280,9 @@ public class HeartBeatProcessor {
         byte[] tmp = new byte[out.getBytesSize()];
         out.copyTo(tmp);
 
-        int[] colorArray = new int[tmp.length / 3];
-        for (int i = 0; i < tmp.length; i += 3) {
-//            int color = Color.rgb(tmp[i], tmp[i + 1], tmp[i + 2]);
-            colorArray[i / 3] = (0xFF << 24) | (tmp[i] << 16) | (tmp[i + 1] << 8) | tmp[i + 2];
+        int[] colorArray = new int[tmp.length / 4];
+        for (int i = 0; i < tmp.length; i += 4) {
+            colorArray[i / 4] = Color.argb(tmp[i + 3], tmp[i], tmp[i + 1], tmp[i + 2]);
         }
         yuvToRgbIntrinsic.destroy();
 
