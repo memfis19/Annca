@@ -84,6 +84,8 @@ Library has not release yet, so it contains some issues.
 ## Roadmap
 -Improve determinig camera quality settings;</br>
 -Extend annca configuration settings;</br>
+-Add fragments supporting;</br>
+-Add opengl supporting.</br>
 
 ## Bugs and Feedback
 For bugs, feature requests, and discussion please use <a href="https://github.com/memfis19/Annca/issues">GitHub Issues</a>.
