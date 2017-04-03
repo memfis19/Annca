@@ -93,6 +93,9 @@ public class MainActivity extends AppCompatActivity {
                         startActivity(new Intent(MainActivity.this, CustomCameraActivity.class));
                     }
                     break;
+                case R.id.squareDemo:
+                    startActivity(new Intent(MainActivity.this, SquareCameraActivity.class));
+                    break;
             }
         }
     };
@@ -125,6 +128,7 @@ public class MainActivity extends AppCompatActivity {
         findViewById(R.id.universalConfiguration).setOnClickListener(onClickListener);
         findViewById(R.id.dialogDemo).setOnClickListener(onClickListener);
         findViewById(R.id.customDemo).setOnClickListener(onClickListener);
+        findViewById(R.id.squareDemo).setOnClickListener(onClickListener);
     }
 
     @Override

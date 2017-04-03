@@ -7,7 +7,7 @@ ext {
     PUBLISH_VERSION_CODE = 5
     SUPPORT_VERSION = '25.1.1'
     TARGET_SDK = 24
-    MIN_SDK = 10
+    MIN_SDK = 16
     BUILD_TOOLS = "24.0.3"
 }
 
@@ -37,6 +37,7 @@ dependencies {
         exclude group: 'com.android.support', module: 'support-annotations'
     })
     compile "com.android.support:appcompat-v7:$SUPPORT_VERSION"
+    compile 'com.writingminds:FFmpegAndroid:0.3.2'
     testCompile 'junit:junit:4.12'
     compile project(':annca')
 }
