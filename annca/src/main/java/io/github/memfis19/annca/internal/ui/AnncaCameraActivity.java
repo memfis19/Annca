@@ -118,6 +118,14 @@ abstract public class AnncaCameraActivity<CameraId> extends Activity
         previewContainer.setAspectRatio(previewSize.getHeight() / (double) previewSize.getWidth());
     }
 
+    public final void setCustomCameraPreview(View preview, Size previewSize, Size customSize) {
+        if (previewContainer == null || preview == null) return;
+        previewContainer.removeAllViews();
+        previewContainer.addView(preview);
+
+        previewContainer.setCustomSize(customSize, previewSize);
+    }
+
     @Override
     public void onCameraReady() {
         onCameraControllerReady();

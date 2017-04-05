@@ -8,9 +8,7 @@ import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
-import android.widget.FrameLayout;
 import android.widget.RelativeLayout;
-import android.widget.Toast;
 
 import com.github.hiteshsondhi88.libffmpeg.ExecuteBinaryResponseHandler;
 import com.github.hiteshsondhi88.libffmpeg.FFmpeg;
@@ -27,7 +25,6 @@ import io.github.memfis19.annca.internal.controller.impl.Camera1Controller;
 import io.github.memfis19.annca.internal.controller.view.CameraView;
 import io.github.memfis19.annca.internal.ui.AnncaCameraActivity;
 import io.github.memfis19.annca.internal.utils.Size;
-import io.github.memfis19.annca.internal.utils.Utils;
 
 /**
  * Created by memfis on 2/7/17.
@@ -38,14 +35,18 @@ public class SquareCameraActivity extends AnncaCameraActivity<Integer> {
     private static final int REQUEST_CODE = 404;
 
     private RelativeLayout customCameraLayout;
-    private int IMAGE_SIZE = 0;
+
+    private int PREVIEW_SIZE = 0;
+    private int PHOTO_CROP_SIZE = 0;
+    private int VIDEO_CROP_SIZE = 0;
+
     private boolean ffmpegSupported = true;
 
     @AnncaConfiguration.MediaAction
-    private static final int PHOTO = AnncaConfiguration.MEDIA_ACTION_PHOTO;
+    private static final int PHOTO = AnncaConfiguration.MEDIA_ACTION_VIDEO;
 
     @AnncaConfiguration.MediaQuality
-    private static final int QUALITY = AnncaConfiguration.MEDIA_QUALITY_HIGH;
+    private static final int QUALITY = AnncaConfiguration.MEDIA_QUALITY_HIGHEST;
 
     @AnncaConfiguration.FlashMode
     private static final int FLASH = AnncaConfiguration.FLASH_MODE_AUTO;
@@ -59,13 +60,14 @@ public class SquareCameraActivity extends AnncaCameraActivity<Integer> {
         customCameraLayout.findViewById(R.id.take_photo).setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                if (!isVideoRecording) {
-                    isVideoRecording = true;
-                    getCameraController().startVideoRecord();
-                } else {
-                    isVideoRecording = false;
-                    getCameraController().stopVideoRecord();
-                }
+//                if (!isVideoRecording) {
+//                    isVideoRecording = true;
+//                    getCameraController().startVideoRecord();
+//                } else {
+//                    isVideoRecording = false;
+//                    getCameraController().stopVideoRecord();
+//                }
+                getCameraController().takePhoto();
             }
         });
 
@@ -96,21 +98,6 @@ public class SquareCameraActivity extends AnncaCameraActivity<Integer> {
         }
 
         return customCameraLayout;
-    }
-
-    @Override
-    public void onWindowFocusChanged(boolean hasFocus) {
-        super.onWindowFocusChanged(hasFocus);
-
-        int previewWidth = previewContainer.getMeasuredWidth(),
-                previewHeight = previewContainer.getMeasuredHeight();
-
-        // Set the height of the overlay so that it makes the preview a square
-        FrameLayout.LayoutParams overlayParams = (FrameLayout.LayoutParams) customCameraLayout.getLayoutParams();
-        overlayParams.height = previewHeight - previewWidth;
-        customCameraLayout.setLayoutParams(overlayParams);
-
-        customCameraLayout.invalidate();
     }
 
     @Override
@@ -155,17 +142,10 @@ public class SquareCameraActivity extends AnncaCameraActivity<Integer> {
 
     @Override
     public void updateCameraPreview(Size size, View cameraPreview) {
-        setCameraPreview(cameraPreview, size);
+        if (size.getHeight() < size.getWidth()) PREVIEW_SIZE = size.getHeight();
+        else PREVIEW_SIZE = size.getWidth();
 
-        int previewWidth = previewContainer.getMeasuredWidth(),
-                previewHeight = previewContainer.getMeasuredHeight();
-
-        // Set the height of the overlay so that it makes the preview a square
-        FrameLayout.LayoutParams overlayParams = (FrameLayout.LayoutParams) customCameraLayout.getLayoutParams();
-        IMAGE_SIZE = overlayParams.height = previewHeight - previewWidth;
-        customCameraLayout.setLayoutParams(overlayParams);
-
-        customCameraLayout.requestLayout();
+        setCustomCameraPreview(cameraPreview, size, new Size(PREVIEW_SIZE, PREVIEW_SIZE));
     }
 
     @Override
@@ -180,59 +160,63 @@ public class SquareCameraActivity extends AnncaCameraActivity<Integer> {
 
     @Override
     public void onPhotoTaken() {
-        Toast.makeText(this, "Result file: " + String.valueOf(getCameraController().getOutputFile().toString()), Toast.LENGTH_LONG).show();
+        new Thread(new Runnable() {
+            @Override
+            public void run() {
+                Size size = getCameraController().getCameraManager().getPhotoSizeForQuality(QUALITY);
+                if (size.getHeight() < size.getWidth()) PHOTO_CROP_SIZE = size.getHeight();
+                else PHOTO_CROP_SIZE = size.getWidth();
 
-        BitmapFactory.Options options = new BitmapFactory.Options();
-        options.inJustDecodeBounds = true;
-        BitmapFactory.decodeFile(getCameraController().getOutputFile().toString(), options);
+                BitmapFactory.Options options = new BitmapFactory.Options();
+                options.inJustDecodeBounds = true;
+                BitmapFactory.decodeFile(getCameraController().getOutputFile().toString(), options);
 
-        int width = options.outWidth;
-        int height = options.outHeight;
+                int width = options.outWidth;
+                int height = options.outHeight;
 
-        int croppedWidth = (width > height) ? height : width;
-        int croppedHeight = (width > height) ? height : width;
+                int croppedWidth = (width > height) ? height : width;
+                int croppedHeight = (width > height) ? height : width;
 
-        Bitmap toCrop = BitmapFactory.decodeFile(getCameraController().getOutputFile().toString());
-        Bitmap cropped = Bitmap.createBitmap(toCrop, 0, 0, croppedWidth, croppedHeight, null, true);
+                Bitmap toCrop = BitmapFactory.decodeFile(getCameraController().getOutputFile().toString());
+                Bitmap cropped = Bitmap.createBitmap(toCrop, 0, 0, croppedWidth, croppedHeight, null, true);
 
-        toCrop.recycle();
+                toCrop.recycle();
 
-        FileOutputStream out = null;
-        try {
-            ExifInterface exif = new ExifInterface(getCameraController().getOutputFile().getAbsolutePath());
-            String orientation = exif.getAttribute(ExifInterface.TAG_ORIENTATION);
+                FileOutputStream out = null;
+                try {
+                    ExifInterface exif = new ExifInterface(getCameraController().getOutputFile().getAbsolutePath());
+                    String orientation = exif.getAttribute(ExifInterface.TAG_ORIENTATION);
 
-            Bitmap scaled = Bitmap.createScaledBitmap(cropped, IMAGE_SIZE, IMAGE_SIZE, true);
-            cropped.recycle();
+                    Bitmap scaled = Bitmap.createScaledBitmap(cropped, PHOTO_CROP_SIZE, PHOTO_CROP_SIZE, true);
+                    cropped.recycle();
 
-            out = new FileOutputStream(getCameraController().getOutputFile());
-            scaled.compress(Bitmap.CompressFormat.JPEG, 100, out); // bmp is your Bitmap instance
-            scaled.recycle();
+                    out = new FileOutputStream(getCameraController().getOutputFile());
+                    scaled.compress(Bitmap.CompressFormat.JPEG, 100, out); // bmp is your Bitmap instance
+                    scaled.recycle();
 
-            ExifInterface newExif = new ExifInterface(getCameraController().getOutputFile().getAbsolutePath());
-            newExif.setAttribute(ExifInterface.TAG_ORIENTATION, "" + orientation);
-            newExif.saveAttributes();
-        } catch (Exception e) {
-            e.printStackTrace();
-        } finally {
-            try {
-                if (out != null) {
-                    out.close();
+                    ExifInterface newExif = new ExifInterface(getCameraController().getOutputFile().getAbsolutePath());
+                    newExif.setAttribute(ExifInterface.TAG_ORIENTATION, "" + orientation);
+                    newExif.saveAttributes();
+                } catch (Exception e) {
+                    Log.e("", "");
+                } finally {
+                    try {
+                        if (out != null) {
+                            out.close();
+                        }
+                    } catch (Exception e) {
+                        Log.e("", "");
+                    }
                 }
-            } catch (Exception e) {
-                Log.e("", "");
             }
-        }
+        }).start();
     }
 
-    private int videoWidth = 0;
-    private int videoHeight = 0;
 
     @Override
     public void onVideoRecordStart(int width, int height) {
-        videoWidth = width;
-        videoHeight = height;
-        Log.i("", "");
+        if (height < width) VIDEO_CROP_SIZE = height;
+        else VIDEO_CROP_SIZE = width;
     }
 
     @Override
@@ -241,10 +225,9 @@ public class SquareCameraActivity extends AnncaCameraActivity<Integer> {
         FFmpeg ffmpeg = FFmpeg.getInstance(this);
 
         String in = getCameraController().getOutputFile().getAbsolutePath();
-        String out = getCameraController().getOutputFile().getAbsolutePath().replace(".mp4", "1.mp4");
-//        String[] cmd = {"-i", in, "-filter:v", "crop=" + videoHeight + ":" + videoWidth + ":" + IMAGE_SIZE + ":" + IMAGE_SIZE, "-c:a", "copy", out};
-//        String[] cmd = {"-i", in, "-filter:v", "crop=" + IMAGE_SIZE + ":" + IMAGE_SIZE + ":" + 0 + ":" + IMAGE_SIZE, "-c:a", "copy", out};
-        String[] cmd = {"-i", in, "-filter:v", "crop=" + Utils.convertDipToPixels(this, IMAGE_SIZE) + ":" + Utils.convertDipToPixels(this, IMAGE_SIZE), "-c:a", "copy", out};
+        String out = getCameraController().getOutputFile().getAbsolutePath().replace(".mp4", "_crop.mp4");
+
+        String[] cmd = {"-i", in, "-filter:v", "crop=" + VIDEO_CROP_SIZE + ":" + VIDEO_CROP_SIZE + ":" + 0 + ":" + 0, "-c:a", "copy", out};
         try {
             ffmpeg.execute(cmd, new ExecuteBinaryResponseHandler() {
                 @Override
