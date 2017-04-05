@@ -1,6 +1,7 @@
 package io.github.memfis19.sample;
 
 import android.app.Activity;
+import android.app.ProgressDialog;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.media.ExifInterface;
@@ -9,6 +10,7 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.RelativeLayout;
+import android.widget.Toast;
 
 import com.github.hiteshsondhi88.libffmpeg.ExecuteBinaryResponseHandler;
 import com.github.hiteshsondhi88.libffmpeg.FFmpeg;
@@ -60,14 +62,20 @@ public class SquareCameraActivity extends AnncaCameraActivity<Integer> {
         customCameraLayout.findViewById(R.id.take_photo).setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-//                if (!isVideoRecording) {
-//                    isVideoRecording = true;
-//                    getCameraController().startVideoRecord();
-//                } else {
-//                    isVideoRecording = false;
-//                    getCameraController().stopVideoRecord();
-//                }
                 getCameraController().takePhoto();
+            }
+        });
+
+        customCameraLayout.findViewById(R.id.record_video).setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                if (!isVideoRecording) {
+                    isVideoRecording = true;
+                    getCameraController().startVideoRecord();
+                } else {
+                    isVideoRecording = false;
+                    getCameraController().stopVideoRecord();
+                }
             }
         });
 
@@ -160,6 +168,9 @@ public class SquareCameraActivity extends AnncaCameraActivity<Integer> {
 
     @Override
     public void onPhotoTaken() {
+        final ProgressDialog progressDialog = new ProgressDialog(this);
+        progressDialog.setTitle("Photo processing!!!");
+        progressDialog.show();
         new Thread(new Runnable() {
             @Override
             public void run() {
@@ -197,6 +208,14 @@ public class SquareCameraActivity extends AnncaCameraActivity<Integer> {
                     ExifInterface newExif = new ExifInterface(getCameraController().getOutputFile().getAbsolutePath());
                     newExif.setAttribute(ExifInterface.TAG_ORIENTATION, "" + orientation);
                     newExif.saveAttributes();
+
+                    runOnUiThread(new Runnable() {
+                        @Override
+                        public void run() {
+                            progressDialog.dismiss();
+                            Toast.makeText(SquareCameraActivity.this, "Photo is ready", Toast.LENGTH_LONG).show();
+                        }
+                    });
                 } catch (Exception e) {
                     Log.e("", "");
                 } finally {
@@ -226,6 +245,8 @@ public class SquareCameraActivity extends AnncaCameraActivity<Integer> {
 
         String in = getCameraController().getOutputFile().getAbsolutePath();
         String out = getCameraController().getOutputFile().getAbsolutePath().replace(".mp4", "_crop.mp4");
+        final ProgressDialog progressDialog = new ProgressDialog(this);
+        progressDialog.setTitle("Video processing!!!");
 
         String[] cmd = {"-i", in, "-filter:v", "crop=" + VIDEO_CROP_SIZE + ":" + VIDEO_CROP_SIZE + ":" + 0 + ":" + 0, "-c:a", "copy", out};
         try {
@@ -233,6 +254,7 @@ public class SquareCameraActivity extends AnncaCameraActivity<Integer> {
                 @Override
                 public void onStart() {
                     super.onStart();
+                    progressDialog.show();
                 }
 
                 @Override
@@ -243,6 +265,7 @@ public class SquareCameraActivity extends AnncaCameraActivity<Integer> {
                 @Override
                 public void onProgress(String message) {
                     super.onProgress(message);
+                    progressDialog.setMessage(message);
                 }
 
                 @Override
@@ -253,10 +276,11 @@ public class SquareCameraActivity extends AnncaCameraActivity<Integer> {
                 @Override
                 public void onFinish() {
                     super.onFinish();
+                    progressDialog.dismiss();
                 }
             });
         } catch (FFmpegCommandAlreadyRunningException e) {
-            e.printStackTrace();
+            Log.e("", "");
         }
     }
 
