@@ -6,6 +6,10 @@ Android solution to simplify work with different camera apis. Include video and 
 
 <img src="https://github.com/memfis19/Annca/blob/master/art/default_camera.png" width="200px" /> <img src="https://github.com/memfis19/Annca/blob/master/art/settings_for_video_limitation.png" width="200px" /><img src="https://github.com/memfis19/Annca/blob/master/art/video_camera.png" width="200" /><img src="https://github.com/memfis19/Annca/blob/master/art/video_low_quality.png" width="200" />
 
+## Forks
+Some `Annca`'s forks that can be useful if current functionality is not enought:<br>
+* <a href="https://github.com/florent37/CameraFragment">CameraFragment</a>
+
 ## Example of using
 Add Annca activities to the your app manifest file:
 ```
@@ -60,7 +64,7 @@ in this example you request video capturing which is limited by file size for 5M
 
 ## How to add to your project?
 ```
-compile 'io.github.memfis19:annca:0.3.3'
+compile 'io.github.memfis19:annca:0.3.4'
 ```
 ## How to customize camera?
 By customizing I mean change all avaliable camera controls(not camera preview) to take photos, video recording, quality settings and more in future. To be able to customize camera view you should create activity and extend it via ```AnncaCameraActivity<T>```, where ```T``` is camera id type (due to that in camera 1 api camera ids represent as int values and in camera 2 api as string values). You should implement all requested methods. For more details please look at ```BaseAnncaActivity``` at library project. In future I will provide more detailed instructions how to do it, but anyway it is quite easy task. In case if you gave some troubles or questions, please use <a href="https://github.com/memfis19/Annca/issues">GitHub Issues</a>.
@@ -80,6 +84,8 @@ Library has not release yet, so it contains some issues.
 ## Roadmap
 -Improve determinig camera quality settings;</br>
 -Extend annca configuration settings;</br>
+-Add fragments supporting;</br>
+-Add opengl supporting.</br>
 
 ## Bugs and Feedback
 For bugs, feature requests, and discussion please use <a href="https://github.com/memfis19/Annca/issues">GitHub Issues</a>.
