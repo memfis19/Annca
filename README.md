@@ -64,7 +64,7 @@ in this example you request video capturing which is limited by file size for 5M
 
 ## How to add to your project?
 ```
-compile 'io.github.memfis19:annca:0.3.4'
+compile 'io.github.memfis19:annca:0.3.5'
 ```
 ## How to customize camera?
 By customizing I mean change all avaliable camera controls(not camera preview) to take photos, video recording, quality settings and more in future. To be able to customize camera view you should create activity and extend it via ```AnncaCameraActivity<T>```, where ```T``` is camera id type (due to that in camera 1 api camera ids represent as int values and in camera 2 api as string values). You should implement all requested methods. For more details please look at ```BaseAnncaActivity``` at library project. In future I will provide more detailed instructions how to do it, but anyway it is quite easy task. In case if you gave some troubles or questions, please use <a href="https://github.com/memfis19/Annca/issues">GitHub Issues</a>.
@@ -77,6 +77,13 @@ By customizing I mean change all avaliable camera controls(not camera preview) t
 -For setting your camera contol layout use method ```getUserContentView()```;</br>
 -If you pass some parameters to your camera via bundle please use method ```onProcessBundle(Bundle savedInstanceState)``` which will be called before ```getUserContentView()```;</br>
 -In case you need to retrieve some data from camera controller or manager use in or after method ```onCameraControllerReady()``` was called.
+
+## Square camera
+Sample app contains example of using square camera. Few words about it:
+1. Before appearing <a href="https://developer.android.com/reference/android/media/MediaCodec.html">MediaCodec</a> and <a href="https://developer.android.com/reference/android/media/MediaMuxer.html">MediaMuxer</a> there were no ways to record video from specific surface (at least with native tools) that's why in current example I'm using view resizing to achieve square preview. Look at ```updateCameraPreview``` method within ```SquareCameraActivity```. 
+2. To make square photo I'm cropping origin, please look at ```onPhotoTaken``` method within ```SquareCameraActivity```.
+3. To make square video I'm cropping origin with ffmpeg library, please look at ```onVideoRecordStop``` method within ```SquareCameraActivity```.
+Conclusion: Becasue of some android limitations at least before API level 18 it is not possible to record square video. That's why to make solution more less generic I'm using crop outputs approach. In future I'll implement separate solution for API level 18+ to make possible apply more custom settings for camera (shaders, custom photo/preview/video sizes without cropping etc.).
 
 ## Know issue
 Library has not release yet, so it contains some issues.
