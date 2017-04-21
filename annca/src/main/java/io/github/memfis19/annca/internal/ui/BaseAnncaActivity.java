@@ -62,6 +62,7 @@ public abstract class BaseAnncaActivity<CameraId> extends AnncaCameraActivity<Ca
     protected int videoDuration = -1;
     protected long videoFileSize = -1;
     protected int minimumVideoDuration = -1;
+    protected String filePath = "";
 
     @MediaActionSwitchView.MediaActionState
     protected int currentMediaActionState;
@@ -127,6 +128,24 @@ public abstract class BaseAnncaActivity<CameraId> extends AnncaCameraActivity<Ca
                         mediaAction = AnncaConfiguration.MEDIA_ACTION_UNSPECIFIED;
                         break;
                 }
+            }
+
+            if (bundle.containsKey(AnncaConfiguration.Arguments.CAMERA_FACE)) {
+                switch (bundle.getInt(AnncaConfiguration.Arguments.CAMERA_FACE)) {
+                    case AnncaConfiguration.CAMERA_FACE_FRONT:
+                        currentCameraType = CameraSwitchView.CAMERA_TYPE_FRONT;
+                        break;
+                    case AnncaConfiguration.CAMERA_FACE_REAR:
+                        currentCameraType = CameraSwitchView.CAMERA_TYPE_REAR;
+                        break;
+                    default:
+                        currentCameraType = CameraSwitchView.CAMERA_TYPE_REAR;
+                        break;
+                }
+            }
+
+            if (bundle.containsKey(AnncaConfiguration.Arguments.FILE_PATH)) {
+                filePath = bundle.getString(AnncaConfiguration.Arguments.FILE_PATH);
             }
 
             if (bundle.containsKey(AnncaConfiguration.Arguments.MEDIA_QUALITY)) {
@@ -354,6 +373,16 @@ public abstract class BaseAnncaActivity<CameraId> extends AnncaCameraActivity<Ca
     @Override
     public Activity getActivity() {
         return this;
+    }
+
+    @Override
+    public int getCameraFace() {
+        return currentCameraType;
+    }
+
+    @Override
+    public String getFilePath() {
+        return filePath;
     }
 
     @Override

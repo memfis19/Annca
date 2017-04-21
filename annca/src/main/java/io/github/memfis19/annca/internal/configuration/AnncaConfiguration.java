@@ -55,6 +55,7 @@ public final class AnncaConfiguration {
         String VIDEO_FILE_SIZE = "io.memfis19.annca.camera_video_file_size";
         String FLASH_MODE = "io.memfis19.annca.camera_flash_mode";
         String FILE_PATH = "io.memfis19.annca.camera_video_file_path";
+        String CAMERA_FACE = "io.memfis19.annca.camera_face";
     }
 
     @IntDef({MEDIA_QUALITY_AUTO, MEDIA_QUALITY_LOWEST, MEDIA_QUALITY_LOW, MEDIA_QUALITY_MEDIUM, MEDIA_QUALITY_HIGH, MEDIA_QUALITY_HIGHEST})
@@ -104,13 +105,15 @@ public final class AnncaConfiguration {
     private int mediaQuality = -1;
 
     @CameraFace
-    private int cameraFace = -1;
+    private int cameraFace = CAMERA_FACE_REAR;
 
     private int videoDuration = -1;
 
     private long videoFileSize = -1;
 
     private int minimumVideoDuration = -1;
+
+    private String outPutFilePath = "";
 
     @FlashMode
     private int flashMode = FLASH_MODE_AUTO;
@@ -142,6 +145,17 @@ public final class AnncaConfiguration {
             anncaConfiguration.mediaAction = mediaAction;
             return this;
         }
+
+        public Builder setCameraFace(@CameraFace int cameraFace) {
+            anncaConfiguration.cameraFace = cameraFace;
+            return this;
+        }
+
+        // TODO: 4/21/17 need to add separate destination folder and file name pattern.
+//        public Builder setOutPutFilePath(String outPutFilePath) {
+//            anncaConfiguration.outPutFilePath = outPutFilePath;
+//            return this;
+//        }
 
         public Builder setMediaQuality(@MediaQuality int mediaQuality) {
             anncaConfiguration.mediaQuality = mediaQuality;
@@ -215,6 +229,10 @@ public final class AnncaConfiguration {
 
     public int getCameraFace() {
         return cameraFace;
+    }
+
+    public String getOutPutFilePath() {
+        return outPutFilePath;
     }
 
     public int getVideoDuration() {

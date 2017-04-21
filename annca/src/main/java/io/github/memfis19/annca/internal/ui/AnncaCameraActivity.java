@@ -44,6 +44,7 @@ abstract public class AnncaCameraActivity<CameraId> extends Activity
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+        onProcessBundle(savedInstanceState);
 
         cameraController = createCameraController(this, this);
         cameraController.onCreate(savedInstanceState);
@@ -68,7 +69,6 @@ abstract public class AnncaCameraActivity<CameraId> extends Activity
         previewContainer = (AspectFrameLayout) findViewById(R.id.previewContainer);
         userContainer = (ViewGroup) findViewById(R.id.userContainer);
 
-        onProcessBundle(savedInstanceState);
         setUserContent();
     }
 

@@ -26,6 +26,7 @@ import io.github.memfis19.annca.internal.controller.CameraController;
 import io.github.memfis19.annca.internal.controller.impl.Camera1Controller;
 import io.github.memfis19.annca.internal.controller.view.CameraView;
 import io.github.memfis19.annca.internal.ui.AnncaCameraActivity;
+import io.github.memfis19.annca.internal.ui.view.CameraSwitchView;
 import io.github.memfis19.annca.internal.utils.Size;
 
 /**
@@ -282,6 +283,16 @@ public class SquareCameraActivity extends AnncaCameraActivity<Integer> {
         } catch (FFmpegCommandAlreadyRunningException e) {
             Log.e("", "");
         }
+    }
+
+    @Override
+    public int getCameraFace() {
+        return CameraSwitchView.CAMERA_TYPE_FRONT;
+    }
+
+    @Override
+    public String getFilePath() {
+        return null;
     }
 
     @Override

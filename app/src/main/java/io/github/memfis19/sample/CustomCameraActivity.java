@@ -13,6 +13,7 @@ import io.github.memfis19.annca.internal.controller.CameraController;
 import io.github.memfis19.annca.internal.controller.impl.Camera1Controller;
 import io.github.memfis19.annca.internal.controller.view.CameraView;
 import io.github.memfis19.annca.internal.ui.AnncaCameraActivity;
+import io.github.memfis19.annca.internal.ui.view.CameraSwitchView;
 import io.github.memfis19.annca.internal.utils.Size;
 
 /**
@@ -119,6 +120,16 @@ public class CustomCameraActivity extends AnncaCameraActivity<Integer> {
     @Override
     public void releaseCameraPreview() {
 
+    }
+
+    @Override
+    public int getCameraFace() {
+        return CameraSwitchView.CAMERA_TYPE_REAR;
+    }
+
+    @Override
+    public String getFilePath() {
+        return null;
     }
 
     @Override

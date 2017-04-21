@@ -5,6 +5,7 @@ import android.hardware.camera2.CameraDevice;
 import android.hardware.camera2.CaptureRequest;
 import android.os.Build;
 import android.os.Bundle;
+import android.text.TextUtils;
 import android.util.Log;
 import android.view.TextureView;
 
@@ -21,6 +22,7 @@ import io.github.memfis19.annca.internal.manager.listener.CameraOpenListener;
 import io.github.memfis19.annca.internal.manager.listener.CameraPhotoListener;
 import io.github.memfis19.annca.internal.manager.listener.CameraVideoListener;
 import io.github.memfis19.annca.internal.ui.view.AutoFitTextureView;
+import io.github.memfis19.annca.internal.ui.view.CameraSwitchView;
 import io.github.memfis19.annca.internal.utils.CameraHelper;
 import io.github.memfis19.annca.internal.utils.Size;
 
@@ -50,7 +52,12 @@ public class Camera2Controller implements CameraController<String>,
     public void onCreate(Bundle savedInstanceState) {
         camera2Manager = Camera2Manager.getInstance();
         camera2Manager.initializeCameraManager(configurationProvider, cameraView.getActivity());
-        currentCameraId = camera2Manager.getFaceBackCameraId();
+
+        if (configurationProvider.getCameraFace() == CameraSwitchView.CAMERA_TYPE_FRONT) {
+            currentCameraId = camera2Manager.getFaceFrontCameraId() == null ? camera2Manager.getFaceBackCameraId() : camera2Manager.getFaceFrontCameraId();
+        } else {
+            currentCameraId = camera2Manager.getFaceBackCameraId();
+        }
     }
 
     @Override
@@ -71,13 +78,13 @@ public class Camera2Controller implements CameraController<String>,
 
     @Override
     public void takePhoto() {
-        outputFile = CameraHelper.getOutputMediaFile(cameraView.getActivity(), AnncaConfiguration.MEDIA_ACTION_PHOTO);
+        outputFile = TextUtils.isEmpty(configurationProvider.getFilePath()) ? CameraHelper.getOutputMediaFile(cameraView.getActivity(), AnncaConfiguration.MEDIA_ACTION_PHOTO) : new File(configurationProvider.getFilePath());
         camera2Manager.takePhoto(outputFile, this);
     }
 
     @Override
     public void startVideoRecord() {
-        outputFile = CameraHelper.getOutputMediaFile(cameraView.getActivity(), AnncaConfiguration.MEDIA_ACTION_VIDEO);
+        outputFile = TextUtils.isEmpty(configurationProvider.getFilePath()) ? CameraHelper.getOutputMediaFile(cameraView.getActivity(), AnncaConfiguration.MEDIA_ACTION_VIDEO) : new File(configurationProvider.getFilePath());
         camera2Manager.startVideoRecord(outputFile, this);
     }
 
