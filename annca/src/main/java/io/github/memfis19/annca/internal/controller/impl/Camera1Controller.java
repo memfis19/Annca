@@ -11,7 +11,7 @@ import io.github.memfis19.annca.internal.configuration.AnncaConfiguration;
 import io.github.memfis19.annca.internal.configuration.ConfigurationProvider;
 import io.github.memfis19.annca.internal.controller.view.CameraView;
 import io.github.memfis19.annca.internal.manager.CameraManager;
-import io.github.memfis19.annca.internal.manager.impl.Camera1Manager;
+import io.github.memfis19.annca.internal.manager.impl.OpenGlCamera1Manager;
 import io.github.memfis19.annca.internal.manager.listener.CameraCloseListener;
 import io.github.memfis19.annca.internal.manager.listener.CameraOpenListener;
 import io.github.memfis19.annca.internal.manager.listener.CameraPhotoListener;
@@ -43,7 +43,7 @@ public class Camera1Controller implements io.github.memfis19.annca.internal.cont
 
     @Override
     public void onCreate(Bundle savedInstanceState) {
-        cameraManager = Camera1Manager.getInstance();
+        cameraManager = OpenGlCamera1Manager.getInstance();
         cameraManager.initializeCameraManager(configurationProvider, cameraView.getActivity());
         currentCameraId = cameraManager.getFaceBackCameraId();
     }
