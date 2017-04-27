@@ -61,8 +61,13 @@ public class Camera2Controller implements CameraController<String>,
     }
 
     @Override
+    public void openCamera() {
+        camera2Manager.closeCamera(this);
+    }
+
+    @Override
     public void onResume() {
-        camera2Manager.openCamera(currentCameraId, this);
+        openCamera();
     }
 
     @Override

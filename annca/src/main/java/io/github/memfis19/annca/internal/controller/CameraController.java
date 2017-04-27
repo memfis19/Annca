@@ -28,6 +28,8 @@ public interface CameraController<CameraId> {
 
     boolean isVideoRecording();
 
+    void openCamera();
+
     void switchCamera(@AnncaConfiguration.CameraFace int cameraFace);
 
     void switchQuality();

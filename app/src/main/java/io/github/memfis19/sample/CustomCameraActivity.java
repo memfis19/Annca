@@ -141,4 +141,9 @@ public class CustomCameraActivity extends AnncaCameraActivity<Integer> {
     protected void onScreenRotation(int degrees) {
 
     }
+
+    @Override
+    public int getMediaResultBehaviour() {
+        return AnncaConfiguration.PREVIEW;
+    }
 }

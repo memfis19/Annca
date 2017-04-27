@@ -13,13 +13,13 @@ buildscript {
 }
 
 group = 'io.github.memfis19'
-version = '0.3.6'
+version = '0.3.7'
 
 ext {
     PUBLISH_GROUP_ID = 'io.github.memfis19'
     PUBLISH_ARTIFACT_ID = 'annca'
-    PUBLISH_VERSION = '0.3.6'
-    PUBLISH_VERSION_CODE = 10
+    PUBLISH_VERSION = '0.3.7'
+    PUBLISH_VERSION_CODE = 11
     SUPPORT_VERSION = '25.3.1'
     TARGET_SDK = 24
     MIN_SDK = 10

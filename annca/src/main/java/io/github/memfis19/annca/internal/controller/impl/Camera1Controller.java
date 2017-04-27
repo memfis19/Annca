@@ -57,8 +57,13 @@ public class Camera1Controller implements io.github.memfis19.annca.internal.cont
     }
 
     @Override
-    public void onResume() {
+    public void openCamera() {
         cameraManager.openCamera(currentCameraId, this);
+    }
+
+    @Override
+    public void onResume() {
+        openCamera();
     }
 
     @Override

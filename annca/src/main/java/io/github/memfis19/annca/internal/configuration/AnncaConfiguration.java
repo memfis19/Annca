@@ -46,6 +46,10 @@ public final class AnncaConfiguration {
     public static final int FLASH_MODE_OFF = 2;
     public static final int FLASH_MODE_AUTO = 3;
 
+    public static final int PREVIEW = 1;
+    public static final int CLOSE = 2;
+    public static final int CONTINUE = 3;
+
     public interface Arguments {
         String REQUEST_CODE = "io.memfis19.annca.request_code";
         String MEDIA_ACTION = "io.memfis19.annca.media_action";
@@ -56,11 +60,17 @@ public final class AnncaConfiguration {
         String FLASH_MODE = "io.memfis19.annca.camera_flash_mode";
         String FILE_PATH = "io.memfis19.annca.camera_video_file_path";
         String CAMERA_FACE = "io.memfis19.annca.camera_face";
+        String MEDIA_RESULT_BEHAVIOUR = "io.memfis19.annca.media_result_behaviour";
     }
 
     @IntDef({MEDIA_QUALITY_AUTO, MEDIA_QUALITY_LOWEST, MEDIA_QUALITY_LOW, MEDIA_QUALITY_MEDIUM, MEDIA_QUALITY_HIGH, MEDIA_QUALITY_HIGHEST})
     @Retention(RetentionPolicy.SOURCE)
     public @interface MediaQuality {
+    }
+
+    @IntDef({PREVIEW, CLOSE, CONTINUE})
+    @Retention(RetentionPolicy.SOURCE)
+    public @interface MediaResultBehaviour {
     }
 
     @IntDef({MEDIA_ACTION_VIDEO, MEDIA_ACTION_PHOTO, MEDIA_ACTION_UNSPECIFIED})
@@ -100,6 +110,9 @@ public final class AnncaConfiguration {
 
     @MediaAction
     private int mediaAction = -1;
+
+    @MediaResultBehaviour
+    private int mediaResultBehaviour = PREVIEW;
 
     @MediaQuality
     private int mediaQuality = -1;
@@ -148,6 +161,11 @@ public final class AnncaConfiguration {
 
         public Builder setCameraFace(@CameraFace int cameraFace) {
             anncaConfiguration.cameraFace = cameraFace;
+            return this;
+        }
+
+        public Builder setMediaResultBehaviour(@MediaResultBehaviour int mediaResultBehaviour) {
+            anncaConfiguration.mediaResultBehaviour = mediaResultBehaviour;
             return this;
         }
 
@@ -229,6 +247,10 @@ public final class AnncaConfiguration {
 
     public int getCameraFace() {
         return cameraFace;
+    }
+
+    public int getMediaResultBehaviour() {
+        return mediaResultBehaviour;
     }
 
     public String getOutPutFilePath() {

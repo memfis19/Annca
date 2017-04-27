@@ -70,6 +70,9 @@ public abstract class BaseAnncaActivity<CameraId> extends AnncaCameraActivity<Ca
     @CameraSwitchView.CameraType
     protected int currentCameraType = CameraSwitchView.CAMERA_TYPE_REAR;
 
+    @AnncaConfiguration.MediaResultBehaviour
+    private int mediaResultBehaviour = AnncaConfiguration.PREVIEW;
+
     @AnncaConfiguration.MediaQuality
     protected int newQuality = -1;
 
@@ -126,6 +129,23 @@ public abstract class BaseAnncaActivity<CameraId> extends AnncaCameraActivity<Ca
                         break;
                     default:
                         mediaAction = AnncaConfiguration.MEDIA_ACTION_UNSPECIFIED;
+                        break;
+                }
+            }
+
+            if (bundle.containsKey(AnncaConfiguration.Arguments.MEDIA_RESULT_BEHAVIOUR)) {
+                switch (bundle.getInt(AnncaConfiguration.Arguments.MEDIA_RESULT_BEHAVIOUR)) {
+                    case AnncaConfiguration.CLOSE:
+                        mediaResultBehaviour = AnncaConfiguration.CLOSE;
+                        break;
+                    case AnncaConfiguration.PREVIEW:
+                        mediaResultBehaviour = AnncaConfiguration.PREVIEW;
+                        break;
+                    case AnncaConfiguration.CONTINUE:
+                        mediaResultBehaviour = AnncaConfiguration.CONTINUE;
+                        break;
+                    default:
+                        mediaResultBehaviour = AnncaConfiguration.PREVIEW;
                         break;
                 }
             }
@@ -381,6 +401,11 @@ public abstract class BaseAnncaActivity<CameraId> extends AnncaCameraActivity<Ca
     }
 
     @Override
+    public int getMediaResultBehaviour() {
+        return mediaResultBehaviour;
+    }
+
+    @Override
     public String getFilePath() {
         return filePath;
     }
@@ -426,9 +451,19 @@ public abstract class BaseAnncaActivity<CameraId> extends AnncaCameraActivity<Ca
     }
 
     private void startPreviewActivity() {
-        Intent intent = PreviewActivity.newIntent(this,
-                getMediaAction(), getCameraController().getOutputFile().toString());
-        startActivityForResult(intent, REQUEST_PREVIEW_CODE);
+        if (mediaResultBehaviour == AnncaConfiguration.PREVIEW) {
+            Intent intent = PreviewActivity.newIntent(this,
+                    getMediaAction(), getCameraController().getOutputFile().toString());
+            startActivityForResult(intent, REQUEST_PREVIEW_CODE);
+        } else if (mediaResultBehaviour == AnncaConfiguration.CONTINUE) {
+            getCameraController().openCamera();
+        } else if (mediaResultBehaviour == AnncaConfiguration.CLOSE) {
+            finish();
+        } else {
+            Intent intent = PreviewActivity.newIntent(this,
+                    getMediaAction(), getCameraController().getOutputFile().toString());
+            startActivityForResult(intent, REQUEST_PREVIEW_CODE);
+        }
     }
 
     @Override

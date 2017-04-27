@@ -33,4 +33,7 @@ public interface ConfigurationProvider {
     int getCameraFace();
 
     String getFilePath();
+
+    @AnncaConfiguration.MediaResultBehaviour
+    int getMediaResultBehaviour();
 }

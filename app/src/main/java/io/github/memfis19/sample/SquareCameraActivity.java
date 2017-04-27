@@ -309,4 +309,9 @@ public class SquareCameraActivity extends AnncaCameraActivity<Integer> {
     protected void onScreenRotation(int degrees) {
 
     }
+
+    @Override
+    public int getMediaResultBehaviour() {
+        return AnncaConfiguration.PREVIEW;
+    }
 }

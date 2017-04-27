@@ -64,6 +64,7 @@ public class Annca {
         cameraIntent.putExtra(AnncaConfiguration.Arguments.REQUEST_CODE, anncaConfiguration.getRequestCode());
         cameraIntent.putExtra(AnncaConfiguration.Arguments.CAMERA_FACE, anncaConfiguration.getCameraFace());
         cameraIntent.putExtra(AnncaConfiguration.Arguments.FILE_PATH, anncaConfiguration.getOutPutFilePath());
+        cameraIntent.putExtra(AnncaConfiguration.Arguments.MEDIA_RESULT_BEHAVIOUR, anncaConfiguration.getMediaResultBehaviour());
 
         if (anncaConfiguration.getMediaAction() > 0)
             cameraIntent.putExtra(AnncaConfiguration.Arguments.MEDIA_ACTION, anncaConfiguration.getMediaAction());
